@@ -89,6 +89,7 @@ export default function Home() {
           />
           Go to nextjs.org →
         </a>
+        <p className="text-red-500">kljkljlkjkljk</p>
       </footer>
     </div>
   );
