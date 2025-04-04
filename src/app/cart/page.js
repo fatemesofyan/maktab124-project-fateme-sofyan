@@ -1,7 +1,10 @@
 import React from 'react'
-
+// import Header from "@/components/header/header"
 export default function page() {
   return (
-    <div>pag2555</div>
+    <div>
+      {/* <Header/> */}
+cart
+    </div>
   )
 }
