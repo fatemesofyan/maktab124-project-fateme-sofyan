@@ -8,8 +8,8 @@ import Footersite from "@/components/footer/footersite";
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en" dir="rtl">
-            <body className="flex flex-col min-h-screen">
+    <html lang="fa" dir="rtl">
+            <body >
       <Header/>
             <div className="flex-grow">{children}</div>
       <Footersite/>

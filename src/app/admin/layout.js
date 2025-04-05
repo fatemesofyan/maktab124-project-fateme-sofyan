@@ -1,16 +1,24 @@
-import Header from "@/components/header/header";
+import Sidebar from "@/components/headerAdmin/asideBar/sidebar";
 import "../globals.css";
-import Footersite from "@/components/footer/footersite";
+import HeaderAdmin from "@/components/headerAdmin/headerAdmin";
 
 
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en" dir="rtl">
-            <body className="flex flex-col min-h-screen">
-      <Header/>
-            <div className="flex-grow">{children}</div>
-      {/* <Footersite/> */}
+    <html lang="fa" dir="rtl" >
+      <body >
+        {/* Sidebar */}
+        <Sidebar />
+
+        {/* محتوای اصلی */}
+        <main className="mr-64 p-6 min-h-screen">
+          {/* Header ادمین */}
+          <HeaderAdmin />
+
+          {/* محتوا */}
+          <div>{children}</div>
+        </main>
       </body>
     </html>
   );
