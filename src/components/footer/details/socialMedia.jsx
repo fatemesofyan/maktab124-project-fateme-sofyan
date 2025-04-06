@@ -11,12 +11,12 @@ export default function SocialMedia() {
 
         <p className="font-bold text-xl">همراه ما باشید!</p>
         <div className='flex flex-row gap-4 p-2'>
-        <FaTelegram className='w-10 h-10' />
-        <FaGithub className='w-10 h-10'/>
-        <BsInstagram className='w-10 h-10'/>
-        <CiTwitter className='w-10 h-10'/>
-        <FaLinkedin className='w-10 h-10'/>
+        <FaTelegram className='w-10 h-10 cursor-pointer' />
+        <FaGithub className='w-10 h-10  cursor-pointer'/>
+        <BsInstagram className='w-10 h-10 cursor-pointer'/>
+        <CiTwitter className='w-10 h-10 cursor-pointer'/>
+        <FaLinkedin className='w-10 h-10 cursor-pointer'/>
         </div>
-    </div>
+    </div> 
   )
 }

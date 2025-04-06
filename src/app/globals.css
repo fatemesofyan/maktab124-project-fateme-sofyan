@@ -27,3 +27,13 @@
   font-family: "Vazir", sans-serif;
 }
 
+/* globals.css */
+.flowbite-pagination {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+}
+
+.flowbite-pagination > * {
+  margin-left: 0.5rem !important;
+}

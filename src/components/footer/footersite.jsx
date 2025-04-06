@@ -8,10 +8,11 @@ import NewsClub from "./details/newsClub";
 
 export default function Footersite() {
   return (
+    
     <div className="bg-primaryDark w-full py-4  text-white">
       <Footerlogo />
-      <footer className=" text-white py-10 px-6 md:px-24 lg:px-32">
-        <div className="container mx-auto flex flex-col md:flex-row justify-between items-center">
+      <footer className=" text-white py-10 px-6 ">
+      <div className="container mx-auto flex flex-row justify-between items-center ">
           <Footercallus />
           <CustomerService />
           <ShoppingGuide/>
