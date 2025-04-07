@@ -6,7 +6,7 @@ export default function ProductDropdown() {
     <div className="!text-primaryDark text-lg">
       <Dropdown label="محصولات" inline>
         <DropdownItem>Dashboard</DropdownItem>
-        <DropdownItem>Settings</DropdownItem>
+        <DropdownItem>Setting</DropdownItem>
         <DropdownItem>Earnings</DropdownItem>
         <DropdownItem>Sign out</DropdownItem>
       </Dropdown>
