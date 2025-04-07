@@ -16,7 +16,7 @@ export default function NewsClub() {
 
         <button
           type="submit"
-          className="h-12 w-24 bg-secondary text-white rounded-lg hover:bg-primary focus:outline-none "
+          className="h-12 w-24 bg-secondary text-white rounded-lg hover:bg-primary focus:outline-none cursor-pointer"
         >
           ثبت
         </button>
