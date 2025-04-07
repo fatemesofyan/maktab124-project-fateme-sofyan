@@ -51,7 +51,7 @@ export default function InventoryProducts() {
   };
 
   return (
-    <div className="p-6 bg-background min-h-screen">
+    <div className="p-6 min-h-screen">
       {/* عنوان صفحه */}
       <h2 className="text-3xl font-bold text-primaryDark mb-8 text-start">لیست کالاها</h2>
 

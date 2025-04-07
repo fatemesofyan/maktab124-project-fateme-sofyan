@@ -2,9 +2,6 @@ import React from 'react'
 
 export default function page() {
   return (
-    <div>
-      hi
-    </div>
+    <div>order</div>
   )
 }
-

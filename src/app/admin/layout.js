@@ -1,4 +1,4 @@
-import Sidebar from "@/components/headerAdmin/asideBar/sidebar";
+import Sidebar from "@/components/headerAdmin/sideBar/sidebar";
 import "../globals.css";
 import HeaderAdmin from "@/components/headerAdmin/headerAdmin";
 
