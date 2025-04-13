@@ -3,7 +3,7 @@ import React from 'react'
 
 export default function inventoryproducts() {
   return (
-    <div><InventoryProducts/></div>
+    <InventoryProducts/>
   )
 }
 

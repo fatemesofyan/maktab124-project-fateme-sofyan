@@ -1,7 +1,6 @@
-import React from "react";
+import Logosite from "@/components/shared/logo/logosite";
 import { IoPersonCircleOutline } from "react-icons/io5";
 import { PiShoppingCartFill } from "react-icons/pi";
-import Logosite from "@/components/logo/logosite";
 import Inputsearch from "./inputsearch";
 
 export default function Headers() {
