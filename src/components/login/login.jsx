@@ -117,7 +117,7 @@ export default function Login() {
         {/* لینک فراموشی رمز عبور */}
         <div className="mt-4 text-center">
           <a
-            href="/forgot-password"
+            href="/auth/login"
             className="text-accent hover:text-secondary transition"
           >
             ثبت نام نکرده اید؟

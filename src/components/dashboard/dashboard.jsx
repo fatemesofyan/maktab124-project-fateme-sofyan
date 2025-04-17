@@ -1,6 +1,9 @@
 'use client';
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import Dashboard from './chart/piechart';
+import DashboardPie from './chart/piechart';
+import DashboardBar from './chart/Barchart';
 
 const AdminPage = () => {
   const router = useRouter();
@@ -35,9 +38,10 @@ const AdminPage = () => {
   }, [router]);
 
   return (
-    <div>
-      <h1 className="text-3xl font-bold">Admin Dashboard</h1>
-      <p>Welcome to the admin dashboard!</p>
+    <div className='flex flex-row gap-20'>
+
+      <DashboardPie/>
+      <DashboardBar/>
     </div>
   );
 };

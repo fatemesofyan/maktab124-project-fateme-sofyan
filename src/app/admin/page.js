@@ -4,7 +4,8 @@ import React from 'react'
 export default function page() {
   return (
     <div>
-     <AdminPage/>
+            <AdminPage/>
+    
     </div>
   )
 }

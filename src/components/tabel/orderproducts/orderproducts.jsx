@@ -1,27 +1,49 @@
 "use client";
 
-import React, { useState } from "react";
-import Orderdropdown from "../dropdown/orderdropdown";
+import React, { useState, useEffect } from "react";
 
-const products = Array.from({ length: 300 }, (_, i) => ({
-  id: i + 1,
-  name: `کالا ${i + 1}`,
-  price: `${(i + 1) * 1000} تومان`,
-  stock: Math.floor(Math.random() * 100),
-  category: `دسته‌بندی ${Math.floor(i / 50) + 1}`, // مثال برای دسته‌بندی
-}));
+const ITEMS_PER_PAGE = 1 ; // تعداد آیتم‌ها در هر صفحه
 
-const ITEMS_PER_PAGE = 5; // تعداد آیتم‌ها در هر صفحه
 export default function Ordermanagement() {
-  const [currentPage, setCurrentPage] = useState(1);
+  const [orders, setOrders] = useState([]); // ذخیره سفارشات
+  const [currentPage, setCurrentPage] = useState(1); // صفحه فعلی
+  const [filter, setFilter] = useState("all"); // فیلتر: all, delivered, pending
+  const [selectedOrder, setSelectedOrder] = useState(null); // سفارش انتخاب‌شده برای نمایش جزئیات
+  const [isModalOpen, setIsModalOpen] = useState(false); // وضعیت باز/بسته بودن مدال
+
+  // دریافت داده‌ها از API
+  useEffect(() => {
+    const fetchOrders = async () => {
+      try {
+        const response = await fetch("http://localhost:8000/api/orders");
+        const data = await response.json();
+        if (data.status === "success") {
+          setOrders(data.data.orders); // ذخیره سفارشات
+        }
+      } catch (error) {
+        console.error("Error fetching orders:", error);
+      }
+    };
+    fetchOrders();
+  }, []);
+
+  // فیلتر کردن سفارشات بر اساس وضعیت تحویل
+  const filteredOrders = orders.filter((order) => {
+    if (filter === "delivered") {
+      return order.deliveryStatus === true;
+    } else if (filter === "pending") {
+      return order.deliveryStatus === false;
+    }
+    return true; // نمایش همه سفارشات
+  });
 
   // محاسبه داده‌های مربوط به صفحه فعلی
   const indexOfLastItem = currentPage * ITEMS_PER_PAGE;
   const indexOfFirstItem = indexOfLastItem - ITEMS_PER_PAGE;
-  const currentItems = products.slice(indexOfFirstItem, indexOfLastItem);
+  const currentItems = filteredOrders.slice(indexOfFirstItem, indexOfLastItem);
 
   // تعداد کل صفحات
-  const totalPages = Math.ceil(products.length / ITEMS_PER_PAGE);
+  const totalPages = Math.ceil(filteredOrders.length / ITEMS_PER_PAGE);
 
   // تغییر صفحه
   const handlePageChange = (page) => {
@@ -34,7 +56,6 @@ export default function Ordermanagement() {
   const getVisiblePages = () => {
     const visiblePages = [];
     const halfRange = Math.floor(5 / 2); // نصف تعداد صفحات نمایش‌داده‌شده
-
     let startPage = Math.max(1, currentPage - halfRange);
     let endPage = Math.min(totalPages, startPage + 4);
 
@@ -50,6 +71,48 @@ export default function Ordermanagement() {
     return visiblePages;
   };
 
+  // باز کردن مدال و نمایش جزئیات سفارش
+  const openModal = (order) => {
+    setSelectedOrder(order);
+    setIsModalOpen(true);
+  };
+
+  // بستن مدال
+  const closeModal = () => {
+    setIsModalOpen(false);
+    setSelectedOrder(null);
+  };
+
+  // تغییر وضعیت تحویل سفارش
+  const markAsDelivered = async (orderId) => {
+    try {
+      // ارسال درخواست به API برای به‌روزرسانی وضعیت تحویل
+      const response = await fetch(`http://localhost:8000/api/orders/${orderId}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ deliveryStatus: true }),
+      });
+  
+      const result = await response.json();
+  
+      if (response.ok && result.status === "success") {
+        // آپدیت لوکال‌استیت
+        const updatedOrders = orders.map((order) =>
+          order._id === orderId ? { ...order, deliveryStatus: true } : order
+        );
+        setOrders(updatedOrders);
+        closeModal(); // بستن مدال بعد از آپدیت
+      } else {
+        console.error("Failed to update order in database:", result.message);
+      }
+    } catch (error) {
+      console.error("Error updating order delivery status:", error);
+    }
+  };
+  
+
   return (
     <div className="p-6 min-h-screen">
       {/* عنوان صفحه */}
@@ -59,16 +122,49 @@ export default function Ordermanagement() {
         </h2>
         <div className="flex flex-row gap-8">
           <div>
-            <label htmlFor="order-box " className="text-primaryDark">
+            <label htmlFor="delivered-orders" className="text-primaryDark">
               سفارش های تحویل شده
             </label>
-            <input type="radio" name="order" id="order-box" />
+            <input
+              type="radio"
+              name="order"
+              id="delivered-orders"
+              checked={filter === "delivered"}
+              onChange={() => {
+                setFilter("delivered");
+                setCurrentPage(1);
+              }}
+            />
           </div>
           <div>
-            <label htmlFor="order-box" className="text-primaryDark">
+            <label htmlFor="pending-orders" className="text-primaryDark">
               سفارش های در حال انتظار
             </label>
-            <input type="radio" name="order" id="order-box" />
+            <input
+              type="radio"
+              name="order"
+              id="pending-orders"
+              checked={filter === "pending"}
+              onChange={() => {
+                setFilter("pending");
+                setCurrentPage(1);
+              }}
+            />
+          </div>
+          <div>
+            <label htmlFor="all-orders" className="text-primaryDark">
+              همه سفارشات
+            </label>
+            <input
+              type="radio"
+              name="order"
+              id="all-orders"
+              checked={filter === "all"}
+              onChange={() => {
+                setFilter("all");
+                setCurrentPage(1);
+              }}
+            />
           </div>
         </div>
       </div>
@@ -86,7 +182,7 @@ export default function Ordermanagement() {
                 مجموع مبلغ
               </th>
               <th className="py-4 px-6 text-right font-semibold w-2/8">
-                <Orderdropdown />
+                وضعیت تحویل
               </th>
               <th className="py-4 px-6 text-right font-semibold w-1/8">
                 جزییات
@@ -96,37 +192,35 @@ export default function Ordermanagement() {
 
           {/* بدنه جدول */}
           <tbody>
-            {currentItems.map((product, index) => (
+            {currentItems.map((order, index) => (
               <tr
-                key={product.id}
+                key={order._id}
                 className={`border-b border-gray-300 ${
                   index % 2 === 0 ? "bg-white" : "bg-gray-50"
                 } hover:bg-accent hover:text-white transition`}
               >
-                {/* ستون تصویر */}
+                {/* نام کاربر */}
                 <td className="py-4 px-6 border-r border-gray-300">
-                  {/* می‌توانید تصویر محصول را اینجا قرار دهید */}
-                  {product.img}
+                  {order.user.firstname} {order.user.lastname}
                 </td>
 
-                {/* ستون کالا */}
+                {/* مجموع مبلغ */}
                 <td className="py-4 px-6 border-r border-gray-300">
-                  {product.name}
+                  {order.totalPrice.toLocaleString()} تومان
                 </td>
 
-                {/* ستون دسته‌بندی */}
+                {/* وضعیت تحویل */}
                 <td className="py-4 px-6 border-r border-gray-300">
-                  {product.category}
+                  {order.deliveryStatus ? "تحویل داده شده" : "در حال انتظار"}
                 </td>
 
-                {/* ستون تغییرات (ویرایش و حذف) */}
-                <td className="py-4 px-6 border-r   border-gray-300 flex items-center justify-center gap-6">
-                  {/* ایکون ویرایش */}
+                {/* جزئیات */}
+                <td className="py-4 px-6 border-r border-gray-300 flex items-center justify-center gap-6">
                   <button
-                    className="text-blue-500 underline  hover:text-blue-900 cursor-pointer"
-                    title="ویرایش"
+                    className="text-blue-500 underline hover:text-blue-900 cursor-pointer"
+                    onClick={() => openModal(order)}
                   >
-                    بررسی سفارش
+                    جزئیات
                   </button>
                 </td>
               </tr>
@@ -134,6 +228,62 @@ export default function Ordermanagement() {
           </tbody>
         </table>
       </div>
+
+      {/* مدال نمایش جزئیات */}
+      {isModalOpen && selectedOrder && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+          <div className="bg-white p-8 rounded-lg shadow-lg max-w-2xl w-full">
+            <h3 className="text-2xl font-bold text-primaryDark mb-4">
+              جزئیات سفارش
+            </h3>
+            <div className="space-y-4">
+              <p>
+                <strong>نام کاربر:</strong> {selectedOrder.user.firstname}{" "}
+                {selectedOrder.user.lastname}
+              </p>
+              <p>
+                <strong>تلفن:</strong> {selectedOrder.user.phoneNumber}
+              </p>
+              <p>
+                <strong>آدرس:</strong> {selectedOrder.user.address}
+              </p>
+              <p>
+                <strong>تاریخ تحویل:</strong>{" "}
+                {new Date(selectedOrder.deliveryDate).toLocaleDateString()}
+              </p>
+              <p>
+                <strong>وضعیت تحویل:</strong>{" "}
+                {selectedOrder.deliveryStatus ? "تحویل داده شده" : "در حال انتظار"}
+              </p>
+              <h4 className="text-xl font-bold text-primaryDark mt-4">
+                محصولات:
+              </h4>
+              <ul className="list-disc pl-6">
+                {selectedOrder.products.map((product, index) => (
+                  <li key={index}>
+                    {product.product.name} - {product.count} عدد -{" "}
+                    {product.product.price.toLocaleString()} تومان
+                  </li>
+                ))}
+              </ul>
+              {!selectedOrder.deliveryStatus && (
+                <button
+                  className="mt-4 px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 transition"
+                  onClick={() => markAsDelivered(selectedOrder._id)}
+                >
+                  تحویل داده شد
+                </button>
+              )}
+            </div>
+            <button
+              className="mt-6 px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600 transition"
+              onClick={closeModal}
+            >
+              بستن
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* پیجینگ */}
       <div className="flex justify-center mt-6 overflow-x-auto">

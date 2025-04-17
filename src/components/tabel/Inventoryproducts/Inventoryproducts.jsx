@@ -1,31 +1,93 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
-const products = Array.from({ length: 300 }, (_, i) => ({
-  id: i + 1,
-  name: `کالا ${i + 1}`,
-  price: `${(i + 1) * 1000} تومان`,
-  stock: Math.floor(Math.random() * 100),
-}));
-
-const ITEMS_PER_PAGE = 5; // تعداد آیتم‌ها در هر صفحه
+const ITEMS_PER_PAGE = 2; // تعداد آیتم‌ها در هر صفحه
 
 export default function InventoryProducts() {
   const [currentPage, setCurrentPage] = useState(1);
+  const [products, setProducts] = useState([]);
+  const [totalPages, setTotalPages] = useState(0);
+  const [loading, setLoading] = useState(true);
+  const [editingProductId, setEditingProductId] = useState(null); // ID محصولی که در حال ویرایش است
+  const [editedProduct, setEditedProduct] = useState({}); // داده‌های ویرایش‌شده برای محصول فعلی
 
-  // محاسبه داده‌های مربوط به صفحه فعلی
-  const indexOfLastItem = currentPage * ITEMS_PER_PAGE;
-  const indexOfFirstItem = indexOfLastItem - ITEMS_PER_PAGE;
-  const currentItems = products.slice(indexOfFirstItem, indexOfLastItem);
+  // فراخوانی API
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        const response = await fetch(
+          `http://localhost:8000/api/products?page=${currentPage}&limit=${ITEMS_PER_PAGE}&fields=-rating,-createdAt,-updatedAt,-__v&sort=price&quantity[gte]=8`
+        );
+        const data = await response.json();
 
-  // تعداد کل صفحات
-  const totalPages = Math.ceil(products.length / ITEMS_PER_PAGE);
+        if (data.status === "success") {
+          setProducts(data.data.products); // داده‌های محصولات
+          setTotalPages(data.total_pages); // تعداد کل صفحات
+        }
+      } catch (error) {
+        console.error("Error fetching products:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [currentPage]);
 
   // تغییر صفحه
   const handlePageChange = (page) => {
     if (page >= 1 && page <= totalPages) {
       setCurrentPage(page);
+    }
+  };
+
+  // شروع ویرایش
+  const startEditing = (productId) => {
+    const productToEdit = products.find((product) => product._id === productId);
+    setEditingProductId(productId);
+    setEditedProduct({
+      price: productToEdit.price,
+      quantity: productToEdit.quantity,
+    });
+  };
+
+  // لغو ویرایش
+  const cancelEditing = () => {
+    setEditingProductId(null);
+    setEditedProduct({});
+  };
+
+  // ذخیره تغییرات
+  const saveChanges = async () => {
+    try {
+      const response = await fetch(`http://localhost:8000/api/products/${editingProductId}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(editedProduct),
+      });
+
+      if (response.ok) {
+        const updatedProduct = await response.json();
+
+        // به‌روزرسانی محصولات
+        setProducts((prevProducts) =>
+          prevProducts.map((product) =>
+            product._id === editingProductId ? updatedProduct.data.product : product
+          )
+        );
+
+        // خروج از حالت ویرایش
+        setEditingProductId(null);
+        setEditedProduct({});
+      } else {
+        console.error("Failed to update product");
+      }
+    } catch (error) {
+      console.error("Error saving changes:", error);
     }
   };
 
@@ -49,48 +111,112 @@ export default function InventoryProducts() {
     return visiblePages;
   };
 
+  if (loading) {
+    return <div className="text-center">در حال بارگذاری...</div>;
+  }
+
   return (
     <div className="p-6 min-h-screen">
       {/* عنوان صفحه */}
       <div className="flex flex-row justify-between">
-
-      <h2 className="text-3xl font-bold text-primaryDark mb-8 text-start">مدیریت موجودی کالا</h2>
-      <button className="text-primaryDark rounded-md w-20 h-12 shadow-lg border-2 border-gray-300 hover:text-white hover:bg-primaryDark">ذخیره</button>
+        <h2 className="text-3xl font-bold text-primaryDark mb-8 text-start">
+          مدیریت موجودی کالا
+        </h2>
       </div>
 
       {/* جدول */}
       <div className="shadow-lg rounded-lg border border-gray-300">
-  <table className="w-full border-collapse text-sm  sm:text-base">
-    {/* سربرگ جدول */}
-    <thead>
-      <tr className="bg-primaryDark text-white">
-        <th className="py-4 px-8 text-right font-semibold w-2/4">کالا</th>
-        <th className="py-4 px-6 text-right font-semibold w-1/8">قیمت</th>
-        <th className="py-4 px-6 text-right font-semibold w-1/8">موجودی</th>
-      </tr>
-    </thead>
+        <table className="w-full border-collapse text-sm sm:text-base">
+          {/* سربرگ جدول */}
+          <thead>
+            <tr className="bg-primaryDark text-white">
+              <th className="py-4 px-8 text-right font-semibold w-2/4">کالا</th>
+              <th className="py-4 px-6 text-right font-semibold w-1/8">قیمت</th>
+              <th className="py-4 px-6 text-right font-semibold w-1/8">موجودی</th>
+              <th className="py-4 px-6 text-right font-semibold w-1/8">تغییرات</th>
+            </tr>
+          </thead>
 
-    {/* بدنه جدول */}
-    <tbody>
-      {currentItems.map((product, index) => (
-        <tr
-          key={product.id}
-          className={`border-b border-gray-300 ${
-            index % 2 === 0 ? "bg-white" : "bg-gray-50"
-          } hover:bg-accent hover:text-white transition`}
-        >
-          <td className="py-4 px-6 border-r border-gray-300">{product.name}</td>
-          <td className="py-4 px-6 border-r border-gray-300">{product.price}</td>
-          <td className="py-4 px-6 border-r border-gray-300">{product.stock}</td>
-        </tr>
-      ))}
-    </tbody>
-  </table>
-</div>
+          {/* بدنه جدول */}
+          <tbody>
+            {products.map((product, index) => (
+              <tr
+                key={product._id}
+                className={`border-b border-gray-300 ${
+                  index % 2 === 0 ? "bg-white" : "bg-gray-50"
+                } hover:bg-accent `}
+              >
+                <td className="py-4 px-6 border-r border-gray-300">
+                  {product.name}
+                </td>
+                <td className="py-4 px-6 border-r border-gray-300">
+                  {editingProductId === product._id ? (
+                    <input
+                      type="number"
+                      value={editedProduct.price || product.price}
+                      onChange={(e) =>
+                        setEditedProduct({
+                          ...editedProduct,
+                          price: e.target.value,
+                        })
+                      }
+                      className="border border-gray-300 p-1 rounded-md w-full"
+                    />
+                  ) : (
+                    product.price
+                  )}
+                </td>
+                <td className="py-4 px-6 border-r border-gray-300">
+                  {editingProductId === product._id ? (
+                    <input
+                      type="number"
+                      value={editedProduct.quantity || product.quantity}
+                      onChange={(e) =>
+                        setEditedProduct({
+                          ...editedProduct,
+                          quantity: e.target.value,
+                        })
+                      }
+                      className="border border-gray-300 p-1 rounded-md w-full hover:text-black"
+                    />
+                  ) : (
+                    product.quantity
+                  )}
+                </td>
+                <td className="py-4 px-6 border-r border-gray-300">
+                  {editingProductId === product._id ? (
+                    <>
+                      <button
+                        onClick={saveChanges}
+                        className="text-green-500 mr-2"
+                      >
+                        ذخیره
+                      </button>
+                      <button
+                        onClick={cancelEditing}
+                        className="text-red-500"
+                      >
+                        لغو
+                      </button>
+                    </>
+                  ) : (
+                    <button
+                      onClick={() => startEditing(product._id)}
+                      className="text-blue-500"
+                    >
+                      ویرایش
+                    </button>
+                  )}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
 
       {/* پیجینگ */}
-      <div className="flex justify-center mt-6 overflow-x-auto  ">
-        <ul className="flex items-center  gap-3">
+      <div className="flex justify-center mt-6 overflow-x-auto">
+        <ul className="flex items-center gap-3">
           {/* دکمه قبلی */}
           <li
             className={`px-3 py-1 rounded-md cursor-pointer ${
@@ -118,11 +244,6 @@ export default function InventoryProducts() {
               {page}
             </li>
           ))}
-
-          {/* حالت سه‌نقطه
-          {totalPages > 5 && currentPage < totalPages - 2 && (
-            <li className="px-3 py-1 text-gray-400">...</li>
-          )} */}
 
           {/* دکمه بعدی */}
           <li
