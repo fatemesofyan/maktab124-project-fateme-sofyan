@@ -10,7 +10,10 @@ import {
   IoLogOut,
   IoCube,
   IoCart,
+ 
 } from "react-icons/io5";
+
+
 import Swal from "sweetalert2";
 
 export default function Sidebar() {
@@ -33,6 +36,7 @@ export default function Sidebar() {
   };
 
 
+
   const handleLogout = () => {
     Swal.fire({
       title: "آیا می خواهید خارج شوید؟",
@@ -50,33 +54,33 @@ export default function Sidebar() {
   };
 
   return (
-    <aside className="bg-gray-100 text-primaryDark h-screen w-64 fixed top-0 right-0 z-10   shadow-xl  p-5 ">
+    <aside className="bg-gray-50 text-primaryDark h-screen w-64 fixed top-0 right-0 z-10   shadow-xl  p-5 ">
       <div className="flex items-center justify-center py-6  border-accent">
         <span className="text-xl font-bold"> پنل مدیریت گیتا </span>
       </div>
       <nav className="mt-8">
         <ul>
           <li>
-            <button className="flex gap-4  items-center px-6 py-3 hover:bg-accent hover:text-white rounded-lg transition-colors" onClick={handleDashboard}>
+            <button className="flex gap-4  items-center px-6 py-3 hover:bg-accent  rounded-lg transition-colors" onClick={handleDashboard}>
               <IoHome className="w-5 h-5 mr-2" />
               <span>داشبورد</span>
             </button>
           </li>
           <li>
-            <button className="flex gap-4 items-center px-6 py-3 hover:bg-accent hover:text-white rounded-lg transition-colors" onClick={handleProductsmanagement}>
+            <button className="flex gap-4 items-center px-6 py-3 hover:bg-accent  rounded-lg transition-colors" onClick={handleProductsmanagement}>
               <IoBag className="w-5 h-5 mr-2" />
               <span>مدیریت محصولات</span>
             </button>
           </li>
           <li>
-            <button className="flex gap-4 items-center px-6 py-3 hover:bg-accent hover:text-white rounded-lg transition-colors" onClick={handleOrder}>
+            <button className="flex gap-4 items-center px-6 py-3 hover:bg-accent rounded-lg transition-colors" onClick={handleOrder}>
               <IoCart className="w-5 h-5 mr-2" />
               <span>مدیریت سفارشات</span>
             </button>
           </li>
           <li>
             <button
-              className="flex gap-4 items-center px-6 py-3 hover:bg-accent hover:text-white rounded-lg transition-colors"
+              className="flex gap-4 items-center px-6 py-3 hover:bg-accent  rounded-lg transition-colors"
               onClick={handleInventory}
             >
               <IoCube className="w-5 h-5 mr-2" />
@@ -84,7 +88,13 @@ export default function Sidebar() {
             </button>
           </li>
           <li>
-            <button className="flex gap-4 items-center px-6 py-3 hover:bg-accent hover:text-white rounded-lg transition-colors">
+            {/* <button className="flex gap-4 items-center px-6 py-3 hover:bg-accent rounded-lg transition-colors" onClick={handleUsermanagement}>
+                <IoPersonSharp  className="w-5 h-5 mr-2" />
+              <span>مدیریت کاربران</span>
+            </button> */}
+          </li>
+          <li>
+            <button className="flex gap-4 items-center px-6 py-3 hover:bg-accent rounded-lg transition-colors">
               <IoSettings className="w-5 h-5 mr-2" />
               <span>تنظیمات</span>
             </button>
