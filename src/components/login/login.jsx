@@ -1,126 +1,107 @@
-'use client'
-import React, { useState } from 'react';
-import { useRouter } from 'next/navigation';
+"use client";
+import { loginUser } from "@/services/auth";
+import { validateLoginForm } from "@/utils/validateLoginForm";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+import Loading from "../loading/loading";
+import ButtonForm from "../shared/button/buttonform";
+import Input from "../shared/input/inputForm";
 
 export default function Login() {
-  const [formData, setFormData] = useState({ username: '', password: '' });
+  const [formData, setFormData] = useState({ username: "", password: "" });
   const [error, setError] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
 
+  // Handle input changes
+  const handleChange = (e) => {
+    const { id, value } = e.target;
+    setFormData((prev) => ({ ...prev, [id]: value }));
+  };
+
+  // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setIsLoading(true);
     setError(null);
-  
+
+    // Validate form data
+    const { isValid, errors } = validateLoginForm(formData);
+    if (!isValid) {
+      setError(Object.values(errors)[0]);
+      return;
+    }
+
+    setIsLoading(true);
+
     try {
-      const response = await fetch('http://localhost:8000/api/auth/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData),
-      });
-  
-      if (!response.ok) {
-        throw new Error('Invalid credentials');
-      }
-  
-      const data = await response.json();
-      console.log('API Response:', data); // بررسی پاسخ API
-  
-      // استخراج توکن و نقش کاربر
-      const accessToken = data.token?.accessToken; // استخراج accessToken
-      const role = data.data?.user?.role; // استخراج نقش کاربر
-  
-      if (!accessToken || !role) {
-        throw new Error('Token or role is missing in the response.');
-      }
-  
-      // ذخیره توکن و نقش کاربر در localStorage
-      localStorage.setItem('token', accessToken);
-      localStorage.setItem('role', role);
-  
-      // هدایت کاربر به صفحه مناسب بر اساس نقش
-      if (role === 'ADMIN') {
-        router.push('/admin');
-      } else if (role === 'USER') {
-        router.push('/');
+      const result = await loginUser(formData);
+
+      if (!result.success) {
+        setError(result.error);
+      } else {
+        localStorage.setItem("token", result.accessToken);
+        localStorage.setItem("role", result.role);
+
+        router.push(result.role === "ADMIN" ? "/admin" : "/");
       }
     } catch (err) {
-      setError(err.message || 'An error occurred during login.');
+      setError(err.message || "خطایی در ورود پیش آمد.");
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background">
-      {/* کادر اصلی فرم */}
-      <div className="bg-surface p-8 rounded-lg shadow-lg w-full max-w-md text-primaryDark">
+    <div className="min-h-screen flex items-center justify-center bg-background relative">
+      {/* Backdrop for loading */}
+      {isLoading && <Loading />}
+
+      {/* Main content */}
+      <div
+        className={`bg-surface p-8 rounded-lg shadow-lg w-full max-w-md text-primaryDark ${
+          isLoading ? "opacity-50" : ""
+        }`}
+      >
         <h2 className="text-2xl font-bold text-center mb-6">
           ورود به حساب کاربری
         </h2>
 
-        {/* فرم */}
+        {/* Form */}
         <form className="space-y-4" onSubmit={handleSubmit}>
-          {/* فیلد نام کاربری */}
           <div>
-            <label htmlFor="username" className="block text-sm font-medium mb-2">
-              نام کاربری
-            </label>
-            <input
-              type="text"
+            <Input
               id="username"
+              label="نام کاربری"
               placeholder="نام کاربری خود را وارد کنید"
-              className="w-full px-4 py-2 border border-accent rounded-lg focus:outline-none focus:ring-2 focus:ring-primary transition"
               value={formData.username}
-              onChange={(e) =>
-                setFormData((prev) => ({ ...prev, username: e.target.value }))
-              }
+              onChange={handleChange}
+              required
             />
           </div>
 
-          {/* فیلد پسورد */}
           <div>
-            <label
-              htmlFor="password"
-              className="block text-sm font-medium mb-2"
-            >
-              رمز عبور
-            </label>
-            <input
-              type="password"
+            <Input
               id="password"
+              label="رمز عبور"
               placeholder="رمز عبور خود را وارد کنید"
-              className="w-full px-4 py-2 border border-accent rounded-lg focus:outline-none focus:ring-2 focus:ring-primary transition"
+              type="password"
               value={formData.password}
-              onChange={(e) =>
-                setFormData((prev) => ({ ...prev, password: e.target.value }))
-              }
+              onChange={handleChange}
+              required
             />
           </div>
 
-          {/* نمایش پیام خطا */}
+          {/* Error message */}
           {error && <p className="text-red-500 text-sm">{error}</p>}
 
-          {/* دکمه ورود */}
-          <button
-            type="submit"
-            disabled={isLoading}
-            className="w-full bg-primary text-white py-2 rounded-lg hover:bg-primaryDark transition duration-300"
-          >
-            {isLoading ? 'Logging in...' : 'Login'}
-          </button>
+          {/* Submit button */}
+          <ButtonForm type="submit">ورود</ButtonForm>
         </form>
 
-        {/* لینک فراموشی رمز عبور */}
+        {/* Registration link */}
         <div className="mt-4 text-center">
-          <a
-            href="/auth/login"
-            className="text-accent hover:text-secondary transition"
-          >
-            ثبت نام نکرده اید؟
+          <a href="/auth/register" className="text-secondary ">
+            ثبت‌نام نکرده‌اید؟
           </a>
         </div>
       </div>

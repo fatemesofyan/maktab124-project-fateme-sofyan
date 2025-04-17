@@ -1,1 +1,1 @@
- export const API_URL = 'http://localhost:8000/api/auth/login'
+ export const BASE_URL = "http://localhost:8000/api";

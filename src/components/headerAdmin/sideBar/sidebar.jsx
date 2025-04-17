@@ -10,7 +10,7 @@ import {
   IoLogOut,
   IoCube,
   IoCart,
-  IoPersonSharp ,
+ 
 } from "react-icons/io5";
 
 
@@ -35,9 +35,7 @@ export default function Sidebar() {
     router.push(ROUTES.inventory);
   };
 
-  const handleUsermanagement = () => {
-    router.push(ROUTES.Usermanagement);
-  };
+
 
   const handleLogout = () => {
     Swal.fire({
