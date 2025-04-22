@@ -1,11 +1,16 @@
-// components/ProductsTable.js
+"use client";
 
 import React from "react";
 import { FaEdit, FaTrashAlt } from "react-icons/fa";
+import CustomDropdown from "../dropdown/dropdown";
 
-const ProductsTable = ({ products, handleCategorySelect }) => {
+export default function ProductTable({
+  currentItems,
+  handleCategorySelect,
+  handleDeleteProduct,
+}) {
   return (
-    <div className="shadow-lg rounded-lg border border-gray-300">
+    <div className="shadow-lg rounded-lg border border-gray-300 mt-6">
       <table className="w-full border-collapse text-sm sm:text-base">
         <thead>
           <tr className="bg-primaryDark text-white">
@@ -17,11 +22,12 @@ const ProductsTable = ({ products, handleCategorySelect }) => {
             <th className="py-4 px-6 text-right font-semibold w-1/8">تغییرات</th>
           </tr>
         </thead>
+
         <tbody>
-          {products.map((product) => (
+          {currentItems.map((product) => (
             <tr
               key={product._id}
-              className={`border-b border-gray-300 hover:bg-accent hover:text-white transition`}
+              className="border-b border-gray-300 hover:bg-accent hover:text-white transition"
             >
               <td className="py-4 px-6 border-r border-gray-300">
                 <img
@@ -30,8 +36,15 @@ const ProductsTable = ({ products, handleCategorySelect }) => {
                   className="w-16 h-16 object-cover rounded-md"
                 />
               </td>
-              <td className="py-4 px-6 border-r border-gray-300">{product.name}</td>
-              <td className="py-4 px-6 border-r border-gray-300">{product.category.name}</td>
+
+              <td className="py-4 px-6 border-r border-gray-300">
+                {product.name}
+              </td>
+
+              <td className="py-4 px-6 border-r border-gray-300">
+                {product.category.name}
+              </td>
+
               <td className="py-4 px-6 border-r border-gray-300 flex items-center justify-center gap-6">
                 <button
                   className="text-primaryDark hover:text-blue-500 cursor-pointer"
@@ -39,9 +52,12 @@ const ProductsTable = ({ products, handleCategorySelect }) => {
                 >
                   <FaEdit size={18} />
                 </button>
+
                 <button
                   className="text-primaryDark hover:text-red-500 cursor-pointer"
                   title="حذف"
+                  onClick={() => handleDeleteProduct(product._id)}
+
                 >
                   <FaTrashAlt size={18} />
                 </button>
@@ -52,6 +68,4 @@ const ProductsTable = ({ products, handleCategorySelect }) => {
       </table>
     </div>
   );
-};
-
-export default ProductsTable;
+}

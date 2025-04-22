@@ -1,43 +1,47 @@
-// components/AddProductModal.js
+"use client";
 
 import React from "react";
-import { FaEdit, FaTrashAlt } from "react-icons/fa";
 
-const AddProductModal = ({
-  isModalOpen,
-  closeModal,
+export default function AddProductModal({
+  isOpen,
+  onClose,
+  onSubmit,
   newProduct,
   setNewProduct,
-  handleAddProduct,
   categories,
-  subcategories,
   filteredSubcategories,
-}) => {
-  if (!isModalOpen) return null;
+}) {
+  if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white p-6 rounded-lg shadow-lg w-[750px] h-auto">
+      <div className="bg-white p-6 rounded-lg shadow-lg w-[750px]">
         <h3 className="text-xl font-bold mb-4">افزودن محصول جدید</h3>
         <form>
-          {/* فیلد نام محصول */}
           <div className="mb-4">
-            <label className="block text-sm font-medium text-gray-700">نام محصول</label>
+            <label className="block text-sm font-medium text-gray-700">
+              نام محصول
+            </label>
             <input
               type="text"
               value={newProduct.name}
-              onChange={(e) => setNewProduct({ ...newProduct, name: e.target.value })}
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primaryDark focus:border-primaryDark sm:text-sm"
+              onChange={(e) =>
+                setNewProduct({ ...newProduct, name: e.target.value })
+              }
+              className="input"
             />
           </div>
 
-          {/* فیلد دسته‌بندی */}
           <div className="mb-4">
-            <label className="block text-sm font-medium text-gray-700">دسته‌بندی</label>
+            <label className="block text-sm font-medium text-gray-700">
+              دسته‌بندی
+            </label>
             <select
               value={newProduct.category}
-              onChange={(e) => setNewProduct({ ...newProduct, category: e.target.value })}
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primaryDark focus:border-primaryDark sm:text-sm"
+              onChange={(e) =>
+                setNewProduct({ ...newProduct, category: e.target.value })
+              }
+              className="input"
             >
               <option value="">انتخاب کنید...</option>
               {categories.map((category) => (
@@ -48,13 +52,16 @@ const AddProductModal = ({
             </select>
           </div>
 
-          {/* فیلد زیردسته‌بندی */}
           <div className="mb-4">
-            <label className="block text-sm font-medium text-gray-700">زیردسته‌بندی</label>
+            <label className="block text-sm font-medium text-gray-700">
+              زیردسته‌بندی
+            </label>
             <select
               value={newProduct.subcategory}
-              onChange={(e) => setNewProduct({ ...newProduct, subcategory: e.target.value })}
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primaryDark focus:border-primaryDark sm:text-sm"
+              onChange={(e) =>
+                setNewProduct({ ...newProduct, subcategory: e.target.value })
+              }
+              className="input"
             >
               <option value="">انتخاب کنید...</option>
               {filteredSubcategories.map((subcategory) => (
@@ -65,29 +72,89 @@ const AddProductModal = ({
             </select>
           </div>
 
-          {/* فیلد تصویر */}
           <div className="mb-4">
-            <label className="block text-sm font-medium text-gray-700">تصویر</label>
-            <input
-              type="file"
-              onChange={(e) => setNewProduct({ ...newProduct, image: e.target.files[0] })}
-              className="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primaryDark file:text-white hover:file:bg-accent"
+            <label className="block text-sm font-medium text-gray-700">
+              توضیحات
+            </label>
+            <textarea
+              value={newProduct.description || ""}
+              onChange={(e) =>
+                setNewProduct({ ...newProduct, description: e.target.value })
+              }
+              className="input"
             />
           </div>
 
-          {/* دکمه‌های مدال */}
+          <div className="mb-4">
+            <label className="block text-sm font-medium text-gray-700">
+              تعداد موجودی
+            </label>
+            <input
+              type="number"
+              value={newProduct.quantity}
+              onChange={(e) =>
+                setNewProduct({ ...newProduct, quantity: e.target.value })
+              }
+              className="input"
+            />
+          </div>
+
+          <div className="mb-4">
+            <label className="block text-sm font-medium text-gray-700">
+              برند
+            </label>
+            <input
+              type="text"
+              value={newProduct.brand || ""}
+              onChange={(e) =>
+                setNewProduct({ ...newProduct, brand: e.target.value })
+              }
+              className="input"
+            />
+          </div>
+
+          <div className="mb-4">
+            <label className="block text-sm font-medium text-gray-700">
+              قیمت
+            </label>
+            <input
+              type="number"
+              value={newProduct.price || ""}
+              onChange={(e) =>
+                setNewProduct({
+                  ...newProduct,
+                  price: parseFloat(e.target.value),
+                })
+              }
+              className="input"
+            />
+          </div>
+
+          <div className="mb-4">
+            <label className="block text-sm font-medium text-gray-700">
+              تصویر
+            </label>
+            <input
+              type="file"
+              onChange={(e) =>
+                setNewProduct({ ...newProduct, image: e.target.files[0] })
+              }
+              className="input"
+            />
+          </div>
+
           <div className="flex justify-end gap-3">
             <button
               type="button"
-              onClick={closeModal}
-              className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primaryDark"
+              onClick={onClose}
+              className="cancel-button"
             >
               لغو
             </button>
             <button
               type="button"
-              onClick={handleAddProduct}
-              className="px-4 py-2 text-sm font-medium text-white bg-primaryDark border border-transparent rounded-md shadow-sm hover:bg-accent focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primaryDark"
+              onClick={onSubmit}
+              className="submit-button"
             >
               ذخیره
             </button>
@@ -96,6 +163,4 @@ const AddProductModal = ({
       </div>
     </div>
   );
-};
-
-export default AddProductModal;
+}
