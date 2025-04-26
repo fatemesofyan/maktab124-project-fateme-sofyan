@@ -8,7 +8,7 @@ const ButtonForm = ({ children, type = 'button', onClick, disabled = false }) =>
       type={type}
       onClick={onClick}
       disabled={disabled}
-      className="w-full bg-primary text-white py-2 rounded-lg hover:bg-primaryDark transition duration-300"
+      className="w-full bg-secondary text-white py-2 rounded-lg hover:bg-secondary/90 hover:text-lg transition duration-300"
     >
       {children}
     </button>

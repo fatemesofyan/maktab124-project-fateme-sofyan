@@ -6,17 +6,28 @@ export const fetchCategories = async () => {
   if (!response.ok) throw new Error("Failed to fetch categories");
   return response.json();
 };
-
+// http://localhost:8000/api/products?page=1&limit=100&fields=-rating,-createdAt,-updatedAt,-__v&sort=price&quantity[gte]=0
 // دریافت همه محصولات (برای دراپ‌دان و ...)
 export const fetchProducts = async () => {
-  const response = await fetch(`${BASE_URL}/products?page=1&limit=100`);
+  const response = await fetch(`${BASE_URL}/products?page=0&limit=100`);
   if (!response.ok) throw new Error("Failed to fetch products");
   return response.json();
 };
 
 // دریافت محصولات با صفحه‌بندی و فیلتر
-export const fetchPaginatedProducts = async ({ page = 1, limit = 10, minQuantity = 0 } = {}) => {
-  const query = `page=${page}&limit=${limit}&fields=-rating,-createdAt,-updatedAt,-__v&sort=price&quantity[gte]=${minQuantity}`;
+export const fetchPaginatedProducts = async ({ page = 1, limit = 10, minQuantity, maxQuantity, exactZero } = {}) => {
+  let query = `page=${page}&limit=${limit}&fields=-rating,-createdAt,-updatedAt,-__v&sort=price`;
+
+  if (minQuantity !== undefined) {
+    query += `&quantity[gte]=${minQuantity}`;
+  }
+  if (maxQuantity !== undefined) {
+    query += `&quantity[lte]=${maxQuantity}`;
+  }
+  if (exactZero) {
+    query += `&quantity=0`;
+  }
+
   const response = await fetch(`${BASE_URL}/products?${query}`);
   if (!response.ok) throw new Error("Failed to fetch paginated products");
   return response.json();

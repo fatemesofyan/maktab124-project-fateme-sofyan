@@ -10,7 +10,7 @@ export default function RootLayout({ children }) {
             <body >
       <Headersite/>
             <div className="flex-grow">{children}</div>
-      <Footersite/>
+      {/* <Footersite/> */}
       </body>
     </html>
   );

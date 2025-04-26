@@ -112,19 +112,15 @@ export default function AddProductModal({
               className="input"
             />
           </div>
-
           <div className="mb-4">
             <label className="block text-sm font-medium text-gray-700">
               قیمت
             </label>
             <input
-              type="number"
-              value={newProduct.price || ""}
+              type="text"
+              value={newProduct.price}
               onChange={(e) =>
-                setNewProduct({
-                  ...newProduct,
-                  price: parseFloat(e.target.value),
-                })
+                setNewProduct({ ...newProduct, price: e.target.value })
               }
               className="input"
             />
@@ -136,26 +132,18 @@ export default function AddProductModal({
             </label>
             <input
               type="file"
-              onChange={(e) =>
-                setNewProduct({ ...newProduct, image: e.target.files[0] })
-              }
-              className="input"
+              onChange={(e) => {
+                const file = e.target.files[0];
+                setNewProduct((prev) => ({ ...prev, image: file }));
+              }}
             />
           </div>
 
           <div className="flex justify-end gap-3">
-            <button
-              type="button"
-              onClick={onClose}
-              className="cancel-button"
-            >
+            <button type="button" onClick={onClose} className="cancel-button">
               لغو
             </button>
-            <button
-              type="button"
-              onClick={onSubmit}
-              className="submit-button"
-            >
+            <button type="button" onClick={onSubmit} className="submit-button">
               ذخیره
             </button>
           </div>

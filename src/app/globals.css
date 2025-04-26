@@ -2,6 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
+/* تعریف فونت Vazir */
 @font-face {
   font-family: "Vazir";
   src: url("../assets/font/Vazir-Light-FD-WOL.woff2") format("woff2");
@@ -27,7 +28,7 @@
   font-family: "Vazir", sans-serif;
 }
 
-/* globals.css */
+/* Pagination */
 .flowbite-pagination {
   display: flex !important;
   flex-direction: row !important;
@@ -37,3 +38,81 @@
 .flowbite-pagination > * {
   margin-left: 0.5rem !important;
 }
+
+.swiper {
+  width: 100%;
+  height: 100%;
+}
+
+.swiper-slide {
+  text-align: center;
+  font-size: 18px;
+  background: #fff;
+
+  /* Center slide text vertically */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.swiper-slide img {
+  display: block;
+  width: 100%;
+  height: 80%;
+  object-fit: cover;
+}
+
+.swiper {
+  width: 100%;
+  height: 400px;
+  margin: 20px auto;
+}
+.append-buttons {
+  text-align: center;
+  margin-top: 20px;
+}
+
+.append-buttons button {
+  display: inline-block;
+  cursor: pointer;
+  border: 1px solid #00ff00;
+  color: #00ff00;
+  text-decoration: none;
+  padding: 4px 10px;
+  border-radius: 4px;
+  margin: 0 10px;
+  font-size: 13px;
+}
+
+
+.swiper-button-next, .swiper-rtl .swiper-button-prev {
+
+  top: 93% !important;
+  color: #db1919 !important;
+  background-color: rgba(222, 247, 1, 0.8);
+  padding: 25px !important;
+  border: 2px solid rebeccapurple !important;
+  border-radius: 50%;
+  transform: scale(0.6); /* کوچک کردن فلش‌ها */
+  display: flex !important; /* مرکز‌چینی فلش */
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+.swiper-button-next {
+  left: 400px !important;
+  right: auto;
+}
+
+ .swiper-rtl .swiper-button-prev {
+  right: 400px !important ;
+  left: auto;
+}
+.swiper-horizontal > .swiper-pagination-bullets .swiper-pagination-bullet, .swiper-pagination-horizontal.swiper-pagination-bullets .swiper-pagination-bullet {
+  color: red;
+  background-color: green;
+  width: var(--swiper-pagination-bullet-width, var(--swiper-pagination-bullet-size, 52px));
+  height: var(--swiper-pagination-bullet-height, var(--swiper-pagination-bullet-size, 4px));
+  /* bottom: var(--swiper-pagination-bottom, 40px); */
+}
+
