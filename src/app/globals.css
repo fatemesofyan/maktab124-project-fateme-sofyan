@@ -2,7 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
-/* تعریف فونت Vazir */
+/* font */
 @font-face {
   font-family: "Vazir";
   src: url("../assets/font/Vazir-Light-FD-WOL.woff2") format("woff2");
@@ -39,6 +39,8 @@
   margin-left: 0.5rem !important;
 }
 
+
+/* swiper */
 .swiper {
   width: 100%;
   height: 100%;
@@ -48,8 +50,6 @@
   text-align: center;
   font-size: 18px;
   background: #fff;
-
-  /* Center slide text vertically */
   display: flex;
   justify-content: center;
   align-items: center;
@@ -75,8 +75,8 @@
 .append-buttons button {
   display: inline-block;
   cursor: pointer;
-  border: 1px solid #00ff00;
-  color: #00ff00;
+  /* border: 1px solid #00ff00;
+  color: #00ff00; */
   text-decoration: none;
   padding: 4px 10px;
   border-radius: 4px;
@@ -88,13 +88,12 @@
 .swiper-button-next, .swiper-rtl .swiper-button-prev {
 
   top: 93% !important;
-  color: #db1919 !important;
-  background-color: rgba(222, 247, 1, 0.8);
+  color: #375437 !important;
   padding: 25px !important;
-  border: 2px solid rebeccapurple !important;
+  border: 2px solid #375437 !important;
   border-radius: 50%;
-  transform: scale(0.6); /* کوچک کردن فلش‌ها */
-  display: flex !important; /* مرکز‌چینی فلش */
+  transform: scale(0.6); 
+  display: flex !important; 
   align-items: center !important;
   justify-content: center !important;
 }
@@ -109,10 +108,9 @@
   left: auto;
 }
 .swiper-horizontal > .swiper-pagination-bullets .swiper-pagination-bullet, .swiper-pagination-horizontal.swiper-pagination-bullets .swiper-pagination-bullet {
-  color: red;
-  background-color: green;
+  color: #375437;
+  background-color: #375437;
   width: var(--swiper-pagination-bullet-width, var(--swiper-pagination-bullet-size, 52px));
   height: var(--swiper-pagination-bullet-height, var(--swiper-pagination-bullet-size, 4px));
-  /* bottom: var(--swiper-pagination-bottom, 40px); */
 }
 

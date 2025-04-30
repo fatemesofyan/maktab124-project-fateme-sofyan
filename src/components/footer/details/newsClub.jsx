@@ -1,3 +1,4 @@
+import ButtonForm from "@/components/shared/button/buttonform";
 import React from "react";
 
 export default function NewsClub() {
@@ -14,12 +15,11 @@ export default function NewsClub() {
           className="h-12 w-full px-4 rounded-lg text-primaryDark border border-accent focus:outline-none focus:border-secondary focus:border-2"
         />
 
-        <button
-          type="submit"
-          className="h-12 w-24 bg-secondary text-white rounded-lg hover:bg-primary focus:outline-none cursor-pointer"
+        <ButtonForm
+          
         >
           ثبت
-        </button>
+        </ButtonForm>
       </div>
     </div>
   );

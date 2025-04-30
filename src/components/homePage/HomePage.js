@@ -7,6 +7,7 @@ import BannerCollectionOne from "../home/bannerCollection/bannerCollection";
 import CollactionSize from "../home/collectionSize/collactionSize";
 import Community from "../home/community/community";
 import Feature from "../home/Feature/Feature";
+import Products from "../home/products/products";
 
 // import BannerVideo from "../home/BannerVideo/bannervideo";
 
@@ -36,6 +37,7 @@ const HomePage = () => {
         <BannerOne/>
         <AboutBanner/>
       </div>
+      <Products/>
       <Feature/>
       <CollactionSize />
       <BannerCollectionOne/>

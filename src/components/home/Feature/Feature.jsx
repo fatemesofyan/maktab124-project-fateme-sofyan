@@ -7,7 +7,7 @@ import { TbTruckDelivery } from "react-icons/tb";
 
 export default function Feature() {
   return (
-    <div className="bg-background w-full  shadow-lg mt-10 flex flex-row justify-around p-8 ">
+    <div className="bg-background w-full  shadow-lg mt-32 flex flex-row justify-around p-8 ">
       <div className="flex flex-row justify-center items-center gap-5 cursor-pointer">
       <TbTruckDelivery  className="w-16 h-16 text-primaryDark cursor-pointer" />
         <div className="flex flex-col">
