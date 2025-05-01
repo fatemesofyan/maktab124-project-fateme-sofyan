@@ -3,11 +3,13 @@
 import AboutBanner from "../home/abuotBanner/abuotBanner";
 import BannerOne from "../home/Banner/bannerOne";
 import BannerCollectionOne from "../home/bannerCollection/bannerCollection";
+import BlogHome from "../home/Blog/Blog";
 
 import CollactionSize from "../home/collectionSize/collactionSize";
 import Community from "../home/community/community";
 import Feature from "../home/Feature/Feature";
-import Products from "../home/products/products";
+import ProductsHome from "../home/productsHome/productsHome";
+import Products from "../home/productsHome/productsHome";
 
 // import BannerVideo from "../home/BannerVideo/bannervideo";
 
@@ -37,10 +39,11 @@ const HomePage = () => {
         <BannerOne/>
         <AboutBanner/>
       </div>
-      <Products/>
+      <ProductsHome/>
       <Feature/>
       <CollactionSize />
       <BannerCollectionOne/>
+      <BlogHome/>
       <Community/>
       {/* <BannerCollectionTwo/> */}
 

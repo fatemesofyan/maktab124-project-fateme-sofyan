@@ -1,15 +1,16 @@
 import { BASE_URL } from "@/api/url";
 
+// http://localhost:8000/api/products?page=1&limit=100&fields=-rating,-createdAt,-updatedAt,-__v&sort=price&quantity[gte]=0
+// دریافت همه محصولات (برای دراپ‌دان و ...)
 
 export const fetchCategories = async () => {
   const response = await fetch(`${BASE_URL}/categories`);
   if (!response.ok) throw new Error("Failed to fetch categories");
   return response.json();
 };
-// http://localhost:8000/api/products?page=1&limit=100&fields=-rating,-createdAt,-updatedAt,-__v&sort=price&quantity[gte]=0
-// دریافت همه محصولات (برای دراپ‌دان و ...)
+
 export const fetchProducts = async () => {
-  const response = await fetch(`${BASE_URL}/products?page=0&limit=100`);
+  const response = await fetch(`${BASE_URL}/products?page=1&limit=100`);
   if (!response.ok) throw new Error("Failed to fetch products");
   return response.json();
 };

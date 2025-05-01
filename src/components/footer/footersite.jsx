@@ -22,7 +22,7 @@ export default function Footersite() {
           <NewsClub/>
           </div>
         </div>
-        <div className="border-t-2 border-black flex flex-row justify-center mt-20">
+        <div className="border-t-2 border-secondary flex flex-row justify-center mt-20">
           <p className="pt-3">
             تمامی حقوق این سایت متعلق به گلخانه گیتا می باشد.
           </p>

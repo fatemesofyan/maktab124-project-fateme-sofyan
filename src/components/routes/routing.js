@@ -1,7 +1,10 @@
 const ROUTES = {
   HOME: "/",
-  ABOUT: "/about",
-  CONTACT: "/contact",
+  PRODUCT: "/main/products",
+  REGISTER: "/auth/register",
+  LOGIN: "/auth/login",
+  ABOUT: "/main/aboutUs",
+  CONTACT: "/main/contact",
   BLOG: "/blog",
   dashboard: "/admin",
   inventory: "/admin/Inventoryproducts",

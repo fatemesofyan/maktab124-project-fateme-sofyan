@@ -1,10 +1,10 @@
-import ProductCard from '@/components/products/products'
+import AboutUs from '@/components/home/aboutUs/aboutUs'
 import React from 'react'
 
 export default function page() {
   return (
     <div>
-     <ProductCard/>
+        <AboutUs/>
     </div>
   )
 }

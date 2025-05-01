@@ -1,23 +1,32 @@
-import ButtonForm from '@/components/shared/button/buttonform'
-import React from 'react'
+"use client"
+
+import ButtonForm from "@/components/shared/button/buttonform";
+import React from "react";
 import Image from "next/image";
 import PLNTS from "@/assets/image/home/PLNTS_for_life_background_67f551596d.avif";
+import { useRouter } from "next/navigation";
+import ROUTES from "@/components/routes/routing";
 
 export default function BannerCollectionOne() {
+
+  const router = useRouter();
+        
+        const handleProduct = () => {
+          router.push(ROUTES.PRODUCT);
+        };
+        
   return (
-    <div className='bg-background mt-20 h-[500px] flex flex-row justify-between pl-20 pr-20'>
-      <div className='flex flex-col justify-center items-center gap-10'>
-        <h3 className='text-4xl font-bold '>
-           دستچین شده گیاهان ممتاز
-        </h3>
-        <p className='break-words max-w-[297px]'>ما فقط سالم ترین ها را با دقت انتخاب می کنیم گیاهان زیبا برای ارسال از گلخانه ما
+    <div className="bg-background mt-20 h-[500px] flex flex-row justify-between pl-20 pr-20">
+      <div className="flex flex-col justify-center items-center gap-10">
+        <h3 className="text-4xl font-bold ">دستچین شده گیاهان ممتاز</h3>
+        <p className="break-words max-w-[297px]">
+          ما فقط سالم ترین ها را با دقت انتخاب می کنیم گیاهان زیبا برای ارسال از
+          گلخانه ما
         </p>
-        <ButtonForm type="button" >
-        فروشگاه
-      </ButtonForm>
+        <ButtonForm type="button"  onClick={handleProduct}>فروشگاه</ButtonForm>
       </div>
-      <div className='flex justify-center items-center rounded-lg'>
-      {/* <video
+      <div className="flex justify-center items-center rounded-lg">
+        {/* <video
         autoPlay
         loop
         muted
@@ -26,15 +35,14 @@ export default function BannerCollectionOne() {
         <source src="/video/homepage-video.webm" type="video/mp4" />
         مرورگر شما از تگ ویدیو پشتیبانی نمی‌کند.
       </video> */}
- <Image
-                 src={PLNTS}
-                 alt="smallx4"
-                 width={600}
-                 height={600}
-                 className="rounded-lg object-cover"
-               />
+        <Image
+          src={PLNTS}
+          alt="smallx4"
+          width={600}
+          height={600}
+          className="rounded-lg object-cover"
+        />
       </div>
-
     </div>
-  )
+  );
 }

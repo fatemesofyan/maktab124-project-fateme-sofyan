@@ -1,101 +1,146 @@
-"use client"
+"use client";
 
-import React, { useState, useEffect } from 'react';
-import { PiShoppingCartFill } from "react-icons/pi";
+import React, { useState, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
+import Pagination from "../pagination/pagination";
+import Loading from "../loading/loading";
+import Link from "next/link";
 
-const ITEMS_PER_PAGE = 10; // تعداد آیتم‌های نمایش داده‌شده در هر صفحه
+
+const ITEMS_PER_PAGE = 10;
 const API_URL = `http://localhost:8000/api/products`;
+const CATEGORY_API_URL = `http://localhost:8000/api/categories`;
 
 export default function ProductCard() {
-  const [products, setProducts] = useState([]); // حالت برای ذخیره محصولات
-  const [currentPage, setCurrentPage] = useState(1); // حالت برای مدیریت صفحه فعلی
-  const [loading, setLoading] = useState(true); // حالت برای نمایش وضعیت بارگذاری
+  const [products, setProducts] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [loading, setLoading] = useState(true);
+  const [categoryName, setCategoryName] = useState(null);
+
+  const searchParams = useSearchParams();
+  const categoryId = searchParams.get("category");
+
   const getImageUrl = (img) => {
-    if (!img) return 'http://localhost:8000/images/products/products-images-default.jpeg';
-  
-    if (img.startsWith('http') || img.startsWith('localhost')) {
-      return img.startsWith('http') ? img : `http://${img}`;
+    if (!img)
+      return "http://localhost:8000/images/products/products-images-default.jpeg";
+
+    if (img.startsWith("http") || img.startsWith("localhost")) {
+      return img.startsWith("http") ? img : `http://${img}`;
     }
-  
+
     return `http://localhost:8000/images/products/${img}`;
   };
-  
-  useEffect(() => {
-    const fetchProducts = async () => {
-      try {
-        setLoading(true);
-        const response = await fetch(
-          `${API_URL}?page=${currentPage}&limit=${ITEMS_PER_PAGE}&fields=-rating,-createdAt,-updatedAt,-__v&sort=price&quantity[gte]=0`
-        );
-        if (!response.ok) {
-          throw new Error('Failed to fetch products');
-        }
-        const data = await response.json();
-        setProducts(data.data.products); // محصولات از فیلد `data.products` استخراج می‌شوند
-        setLoading(false);
-      } catch (error) {
-        console.error('Error fetching products:', error);
-        setLoading(false);
-      }
-    };
 
+  const fetchCategoryName = async (id) => {
+    try {
+      const res = await fetch(`${CATEGORY_API_URL}/${id}`);
+      const data = await res.json();
+      setCategoryName(data.data.name || "دسته ناشناس");
+    } catch (error) {
+      console.error("Error fetching category name:", error);
+      setCategoryName("دسته ناشناس");
+    }
+  };
+
+  const fetchProducts = async () => {
+    try {
+      setLoading(true);
+
+      const queryParams = new URLSearchParams({
+        page: currentPage,
+        limit: ITEMS_PER_PAGE,
+        fields: "-rating,-createdAt,-updatedAt,-__v",
+        sort: "price",
+        "quantity[gte]": 0,
+      });
+
+      if (categoryId) {
+        queryParams.append("category", categoryId);
+      }
+
+      const response = await fetch(`${API_URL}?${queryParams.toString()}`);
+      const data = await response.json();
+      const fetchedProducts = data.data.products || [];
+
+      setProducts(fetchedProducts);
+      setTotalPages(Math.ceil((data.total || fetchedProducts.length) / ITEMS_PER_PAGE));
+
+      if (categoryId) {
+        if (fetchedProducts.length > 0) {
+          setCategoryName(fetchedProducts[0]?.category?.name || "دسته ناشناس");
+        } else {
+          await fetchCategoryName(categoryId);
+        }
+      } else {
+        setCategoryName(null);
+      }
+    } catch (error) {
+      console.error("Error fetching products:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
     fetchProducts();
-  }, [currentPage]); // در صورت تغییر صفحه، محصولات جدید بارگذاری می‌شوند
+  }, [currentPage, categoryId]);
 
   if (loading) {
-    return <div className="p-4">در حال بارگذاری...</div>;
+    return <Loading />;
   }
 
   return (
-    <div className="p-4">
-      <h1 className="text-3xl font-bold mb-4">سانسوریا</h1>
-      <div className="grid grid-cols-4 gap-4">
-        {products.map((product) => (
-          <div key={product._id} className="w-full max-w-sm bg-white rounded-lg shadow-md relative">
-            <img
-              className="rounded-t-lg h-48 w-full object-cover"
-              src={getImageUrl(product.images?.[0])}
-              alt={product.name}
-            />
-            <div className="p-5 pb-16">
-              <h5 className="mb-2 text-xl font-bold tracking-tight text-gray-900">
-                {product.name}
-              </h5>
-              <span className="text-2xl font-bold text-green-600">${product.price}</span>
-              <div className="mt-2 mb-5">
-                <span className="ml-2 text-sm font-medium text-gray-500">
-                  موجودی: {product.quantity}
-                </span>
+    <div className="p-8">
+      <h1 className="text-3xl font-bold mb-4">
+        {categoryId
+          ? `گیاهان ${categoryName || ""}`
+          : "همه گیاهان"}
+      </h1>
+
+      {products.length === 0 ? (
+        <p className="text-center text-gray-500 mt-10">هیچ محصولی یافت نشد.</p>
+      ) : (
+        <>
+          <div className="grid grid-cols-4 gap-6">
+            {products.map((product) => (
+         <Link href={`/main/products/${product._id}`} key={product._id}>
+
+              <div
+                className="bg-white rounded-lg shadow-md overflow-hidden relative"
+              >
+                <img
+                  className="min-h-90 w-full object-cover"
+                  src={getImageUrl(product.images?.[0])}
+                  alt={product.name}
+                />
+                <div className="p-5 pb-24">
+                  <h5 className="text-xl font-semibold text-gray-900 mb-2">
+                    {product.name}
+                  </h5>
+                  <p className="text-lg flex gap-1 items-center text-gray-700">
+                  {product.price?.toLocaleString()}{" "}
+                    <span>تومان</span>
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  className="absolute bottom-4 left-4 bg-secondary text-white px-4 py-2 rounded hover:bg-secondary/90 transition"
+                >
+                  افزودن به سبد خرید
+                </button>
               </div>
-            </div>
-            <button
-              type="button"
-              className="absolute bottom-4 left-4 bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 transition"
-            >
-              اضافه به سبد خرید
-            </button>
+              </Link>
+            ))}
           </div>
-        ))}
-      </div>
-      {/* Pagination */}
-      <div className="flex justify-center mt-8">
-        <button
-          onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-          disabled={currentPage === 1}
-          className="px-4 py-2 bg-gray-200 text-gray-700 rounded-l"
-        >
-          قبلی
-        </button>
-        <span className="px-4 py-2 bg-gray-200 text-gray-700">
-          صفحه {currentPage}
-        </span>
-        <button
-          onClick={() => setCurrentPage((prev) => prev + 1)}
-          className="px-4 py-2 bg-gray-200 text-gray-700 rounded-r"
-        >
-          بعدی
-        </button>
-      </div>
+
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={setCurrentPage}
+          />
+        </>
+      )}
     </div>
   );
 }
