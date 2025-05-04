@@ -1,33 +1,34 @@
 import { createSlice } from "@reduxjs/toolkit";
 
-const init = [];
+const initialState = [];
 
 const productReducer = createSlice({
-  name: "productReducer",
-  initialState: init,
+  name: "product",
+  initialState,
   reducers: {
     add: (state, action) => {
-      const temp = state;
-      const finder = temp.find((item) => item.id === action.payload.id);
-      if (finder) {
-        finder.count += 1;
+      const id = action.payload._id;
+      const existing = state.find((item) => item.id === id);
+      if (existing) {
+        existing.count += 1;
       } else {
-        temp.push({ id: action.payload.id, count: 1 });
+        state.push({
+          id,
+          count: 1,
+        });
       }
-
-      return temp;
     },
+
     remove: (state, action) => {
-      let temp = state;
-      const finder = temp.find((item) => item.id === action.payload.id);
-      if (finder) {
-        if (finder.count > 1) {
-          finder.count -= 1;
+      const id = action.payload._id;
+      const index = state.findIndex((item) => item.id === id);
+      if (index !== -1) {
+        if (state[index].count > 1) {
+          state[index].count -= 1;
         } else {
-          temp = temp.filter((item) => item.id !== action.payload.id);
+          state.splice(index, 1);
         }
       }
-      return temp;
     },
   },
 });

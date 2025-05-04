@@ -5,6 +5,7 @@ const ROUTES = {
   LOGIN: "/auth/login",
   ABOUT: "/main/aboutUs",
   CONTACT: "/main/contact",
+  CART:"main/cart",
   BLOG: "/blog",
   dashboard: "/admin",
   inventory: "/admin/Inventoryproducts",
