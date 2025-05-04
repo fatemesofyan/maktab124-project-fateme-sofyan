@@ -9,11 +9,7 @@ import CollactionSize from "../home/collectionSize/collactionSize";
 import Community from "../home/community/community";
 import Feature from "../home/Feature/Feature";
 import ProductsHome from "../home/productsHome/productsHome";
-import Products from "../home/productsHome/productsHome";
 
-// import BannerVideo from "../home/BannerVideo/bannervideo";
-
-// import BannerVideo from "../home/BannerVideo/bannervideo";
 
 // import { useEffect } from 'react';
 // import { useRouter } from 'next/navigation';
@@ -45,7 +41,6 @@ const HomePage = () => {
       <BannerCollectionOne/>
       <BlogHome/>
       <Community/>
-      {/* <BannerCollectionTwo/> */}
 
     </>
   );

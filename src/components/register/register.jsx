@@ -31,6 +31,7 @@ export default function Register() {
 
     try {
       const data = await registerUser(formData);
+      localStorage.setItem("username", formData.username);
       console.log("ثبت‌نام موفق:", data);
       router.push("/auth/login");
     } catch (err) {

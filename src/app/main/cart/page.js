@@ -1,9 +1,9 @@
-import Cart from '@/components/cart/cart'
+import CartPage from '@/components/cartComponnent/cartPage'
 import React from 'react'
 export default function page() {
   return (
     <div>
-<Cart/>
+<CartPage/>
     </div>
   )
 }

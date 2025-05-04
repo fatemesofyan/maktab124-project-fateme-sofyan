@@ -41,7 +41,7 @@ export default function Login() {
       } else {
         localStorage.setItem("token", result.accessToken);
         localStorage.setItem("role", result.role);
-
+        localStorage.setItem("username", formData.username);
         router.push(result.role === "ADMIN" ? "/admin" : "/");
       }
     } catch (err) {

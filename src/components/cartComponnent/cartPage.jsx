@@ -21,7 +21,7 @@ const getImageUrl = (img) => {
   return `http://localhost:8000/images/products/${img}`;
 };
 
-export default function Cart() {
+export default function CartPage() {
   const cartItems = useSelector((state) => state.product);
   const dispatch = useDispatch();
   const router = useRouter();
@@ -32,6 +32,15 @@ export default function Cart() {
   const handleCartToProduct = () => {
         router.push(ROUTES.PRODUCT);
       };
+
+      const handleCartToCheckout = () => {
+        localStorage.setItem("totalAmount", totalPrice.toString());
+
+        router.push(ROUTES.CHECKOUT);
+      };
+
+
+      
   const fetchProducts = async () => {
     try {
       const res = await fetch(API_URL);
@@ -132,7 +141,7 @@ export default function Cart() {
           </button>
           <button
             className="px-6 py-2 rounded-lg bg-green-600 text-white hover:bg-green-700 transition"
-            onClick={() => alert("درگاه پرداخت هنوز پیاده‌سازی نشده")}
+            onClick={handleCartToCheckout}
           >
             پرداخت
           </button>

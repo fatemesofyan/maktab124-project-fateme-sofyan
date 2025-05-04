@@ -6,6 +6,7 @@ const ROUTES = {
   ABOUT: "/main/aboutUs",
   CONTACT: "/main/contact",
   CART:"main/cart",
+  CHECKOUT:"/checkout",
   BLOG: "/blog",
   dashboard: "/admin",
   inventory: "/admin/Inventoryproducts",

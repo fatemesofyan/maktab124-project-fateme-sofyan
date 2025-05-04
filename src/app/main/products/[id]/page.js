@@ -1,20 +1,11 @@
-import React from "react";
+"use client";
+
+import React, { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { add, remove } from "@/redux/reducers/productReducer";
+import Loading from "@/components/loading/loading";
 
 const API_URL = `http://localhost:8000/api/products`;
-
-async function getProduct(id) {
-  try {
-    const res = await fetch(`${API_URL}/${id}`, { cache: "no-store" });
-    if (!res.ok) throw new Error("خطا در گرفتن محصول");
-    const data = await res.json();
-    console.log("محصول دریافتی:", data.data);
-
-    return data.data.product;
-  } catch (err) {
-    console.error("خطا:", err);
-    return null;
-  }
-}
 
 const getImageUrl = (img) => {
   if (!img)
@@ -26,13 +17,39 @@ const getImageUrl = (img) => {
 
   return `http://localhost:8000/images/products/${img}`;
 };
-export default async function page({ params }) {
+
+export default function Page({ params }) {
   const { id } = params;
-  const product = await getProduct(id);
+  const dispatch = useDispatch();
+  const productData = useSelector((state) => state.product);
+  const [product, setProduct] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  const fetchProduct = async () => {
+    try {
+      const res = await fetch(`${API_URL}/${id}`, { cache: "no-store" });
+      const data = await res.json();
+      setProduct(data.data.product);
+    } catch (err) {
+      console.error("خطا:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchProduct();
+  }, [id]);
+
+  if (loading) {
+    return <Loading/>;
+  }
 
   if (!product) {
-    return <div>محصول یافت نشد.</div>;
+    return <div className="p-8">محصول یافت نشد.</div>;
   }
+
+  const inCart = productData.find((item) => String(item.id) === String(product._id));
 
   return (
     <div className="p-4">
@@ -42,7 +59,7 @@ export default async function page({ params }) {
             {product.name}
           </h5>
 
-          <div className="text-gray-700 space-y-1 pt-12 ">
+          <div className="text-gray-700 space-y-1 pt-12">
             <p className="flex items-center">
               <span className="font-semibold w-24">دسته‌بندی:</span>
               <span className="px-3 py-1 bg-gray-50 rounded-md">
@@ -55,15 +72,12 @@ export default async function page({ params }) {
                 {product.subcategory?.name || "نامشخص"}
               </span>
             </p>
-
             <p className="flex items-center">
               <span className="font-semibold w-24">قیمت:</span>
               <span className="text-lg font-medium text-gray-900">
-                {product.price?.toLocaleString()}{" "}
-                <span className="text-sm">تومان</span>
+                {product.price?.toLocaleString()} <span className="text-sm">تومان</span>
               </span>
             </p>
-
             <p className="flex items-center">
               <span className="font-semibold w-24">موجودی:</span>
               <span
@@ -79,17 +93,37 @@ export default async function page({ params }) {
           </div>
 
           <div className="pt-8">
-            <button
-              type="button"
-              className="bg-secondary text-white px-6 py-3 rounded-lg hover:bg-secondary/90 hover:scale-105 transition-all duration-300 w-full shadow-md disabled:opacity-70 disabled:cursor-not-allowed"
-              disabled={product.quantity === 0}
-            >
-              {product.quantity > 0 ? "افزودن به سبد خرید" : "ناموجود"}
-            </button>
+            {inCart ? (
+              <div className="flex gap-3 border border-gray-400 p-2 rounded-xl bg-white w-full justify-center">
+                <button
+                  className="px-3 text-lg disabled:text-gray-300"
+                  onClick={() => dispatch(add(product))}
+                  disabled={inCart.count >= product.quantity}
+                >
+                  +
+                </button>
+                <span className="text-lg">{inCart.count}</span>
+                <button
+                  className="px-3 text-lg"
+                  onClick={() => dispatch(remove(product))}
+                >
+                  -
+                </button>
+              </div>
+            ) : (
+              <button
+                type="button"
+                className="bg-secondary text-white px-6 py-3 rounded-lg hover:bg-secondary/90 hover:scale-105 transition-all duration-300 w-full shadow-md disabled:opacity-70 disabled:cursor-not-allowed"
+                onClick={() => dispatch(add(product))}
+                disabled={product.quantity === 0}
+              >
+                {product.quantity > 0 ? "افزودن به سبد خرید" : "ناموجود"}
+              </button>
+            )}
           </div>
         </div>
 
-        <div className="w-[994px] min-h-[490px] mt-10 ">
+        <div className="w-[994px] min-h-[490px] mt-10">
           <img
             src={getImageUrl(product.images?.[0])}
             alt={product.name}
