@@ -5,7 +5,7 @@ import { useSearchParams } from "next/navigation";
 import Pagination from "../pagination/pagination";
 import Loading from "../loading/loading";
 import Link from "next/link";
-
+import { useDispatch, useSelector } from "react-redux";
 
 const ITEMS_PER_PAGE = 10;
 const API_URL = `http://localhost:8000/api/products`;
@@ -20,6 +20,9 @@ export default function ProductCard() {
 
   const searchParams = useSearchParams();
   const categoryId = searchParams.get("category");
+
+  const dispatch = useDispatch();
+  const productData = useSelector((state) => state.product);
 
   const getImageUrl = (img) => {
     if (!img)

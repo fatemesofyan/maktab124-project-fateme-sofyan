@@ -10,6 +10,8 @@ import ROUTES from "@/components/routes/routing";
 export default function Navbar() {
   const router = useRouter();
 
+
+
   const handleAboutUs = () => {
     router.push(ROUTES.ABOUT);
   };

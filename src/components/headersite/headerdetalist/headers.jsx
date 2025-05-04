@@ -6,11 +6,14 @@ import { PiShoppingCartFill } from "react-icons/pi";
 import Inputsearch from "./inputsearch";
 import { useRouter } from "next/navigation";
 import ROUTES from "@/components/routes/routing";
+import { useSelector } from "react-redux";
 
 export default function Headers() {
 
   const router = useRouter();
-  
+
+    const productData = useSelector((state) => state.product);
+
     const handleHome = () => {
       router.push(ROUTES.HOME);
     };
@@ -27,7 +30,14 @@ export default function Headers() {
       <Inputsearch />
       <div className="flex flex-row gap-4">
         <IoPersonCircleOutline className="w-10 h-10 text-primaryDark cursor-pointer" onClick={handlelogin}/>
+        <div className="flex items-center gap-2 p-2 rounded-xl relative">
+        <div className="flex gap-1">
+            <div className="bg-red-400 p-2 rounded-full w-5 h-5 text-white absolute top-3 translate-y-[-30%] items-center flex justify-center">
+              {productData.length}
+            </div>
+          </div>
         <PiShoppingCartFill className="w-10 h-10 text-primaryDark cursor-pointer" />
+        </div>
       </div>
     </div>
   );
