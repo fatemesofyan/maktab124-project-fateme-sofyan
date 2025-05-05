@@ -4,7 +4,6 @@ import { Dropdown, DropdownItem } from "flowbite-react";
 export default function CustomDropdown({ onCategorySelect }) {
   const [categories, setCategories] = useState([]);
 
-  // دریافت دسته‌بندی‌ها از API
   useEffect(() => {
     const fetchCategories = async () => {
       try {
@@ -20,7 +19,7 @@ export default function CustomDropdown({ onCategorySelect }) {
   }, []);
 
   return (
-    <div className="!text-white text-lg">
+    <div className="!text-primaryDark text-lg bg-white  border-2 border-primaryDark rounded-md w-24 h-12">
       <Dropdown label="دسته بندی" inline>
         {categories.map((category) => (
           <DropdownItem

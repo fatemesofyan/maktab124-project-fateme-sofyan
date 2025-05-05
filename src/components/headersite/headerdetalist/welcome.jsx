@@ -4,7 +4,7 @@ import { BiSolidPhoneCall } from "react-icons/bi";
 
 export default function Welcome() {
   return (
-      <div className="w-full h-[45px] bg-surface flex flex-row justify-between items-center content-center pl-28 pr-28">
+      <div className="w-full h-[45px] bg-background flex flex-row justify-between items-center content-center pl-28 pr-28">
             <p className="text-primaryDark flex flex-row gap-3">
               به گلخانه گیتا خوش آمدید
               <span>

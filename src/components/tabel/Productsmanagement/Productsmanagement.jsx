@@ -1,7 +1,10 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { FaEdit, FaTrashAlt } from "react-icons/fa";
+import ProductTable from "./tabelProducts";
+import PaginationProduct from "@/components/pagination/paginationProduct";
+import AddProductModal from "@/components/modal/addproductmodal";
+import Swal from "sweetalert2";
 import CustomDropdown from "../dropdown/dropdown";
 
 const ITEMS_PER_PAGE = 5;
@@ -23,6 +26,8 @@ export default function ProductsManagement() {
   const [subcategories, setSubcategories] = useState([]);
   const [filteredSubcategories, setFilteredSubcategories] = useState([]);
   const [currentItems, setCurrentItems] = useState([]);
+
+  const [editingProduct, setEditingProduct] = useState(null);
 
   useEffect(() => {
     const fetchSubcategories = async () => {
@@ -53,7 +58,7 @@ export default function ProductsManagement() {
     const fetchProducts = async () => {
       try {
         const response = await fetch(
-          `http://localhost:8000/api/products?page=${currentPage}&limit=${ITEMS_PER_PAGE}&fields=-rating,-createdAt,-updatedAt,-__v&sort=price&quantity[gte]=8`
+          `http://localhost:8000/api/products?page=${currentPage}&limit=${ITEMS_PER_PAGE}&fields=-rating,-createdAt,-updatedAt,-__v&sort=price&quantity[gte]=0`
         );
         const data = await response.json();
         setProducts(data.data.products);
@@ -83,14 +88,15 @@ export default function ProductsManagement() {
   const handleCategorySelect = (categorySlug) => {
     if (categorySlug === selectedCategory) {
       setSelectedCategory(null);
-      setFilteredProducts(products);
+      setFilteredProducts(products); // Reset to all products
     } else {
       setSelectedCategory(categorySlug);
       const filtered = products.filter(
         (product) => product.category.slugname === categorySlug
       );
-      setFilteredProducts(filtered);
+      setFilteredProducts(filtered); // Apply category filter
     }
+    setCurrentPage(1); // Reset pagination to the first page
   };
 
   const handlePageChange = (page) => {
@@ -99,36 +105,49 @@ export default function ProductsManagement() {
     }
   };
 
-  const getVisiblePages = () => {
-    const visiblePages = [];
-    const halfRange = Math.floor(5 / 2);
-
-    let startPage = Math.max(1, currentPage - halfRange);
-    let endPage = Math.min(totalPages, startPage + 4);
-
-    if (endPage - startPage < 4) {
-      startPage = Math.max(1, endPage - 4);
-    }
-
-    for (let i = startPage; i <= endPage; i++) {
-      visiblePages.push(i);
-    }
-
-    return visiblePages;
-  };
-
-  const openModal = () => {
+  const openEditModal = (product) => {
+    console.log("Editing Product:", product);
+    setEditingProduct(product);
+    setNewProduct({
+      name: product.name || "",
+      category: product.category?._id || "",
+      subcategory: product.subcategory?._id || "",
+      image: null,
+      price: product.price || 0,
+      quantity: product.quantity || 0,
+      description: product.description || "",
+      brand: product.brand || "",
+    });
     setIsModalOpen(true);
   };
 
   const closeModal = () => {
     setIsModalOpen(false);
-    setNewProduct({ name: "", category: "", image: null });
+    setNewProduct({
+      name: "",
+      category: "",
+      subcategory: "",
+      image: null,
+      price: 0,
+      quantity: 0,
+      description: "",
+      brand: "",
+    });
+    setEditingProduct(null);
   };
+  useEffect(() => {
+    console.log("AddProductModal Re-rendered with newProduct:", newProduct);
+  }, [newProduct]);
+  const openModal = () => {
+    setIsModalOpen(true);
+  };
+
   useEffect(() => {
     setCurrentItems(filteredProducts);
   }, [filteredProducts]);
-
+  useEffect(() => {
+    console.log("Updated newProduct state:", newProduct);
+  }, [newProduct]);
   const handleAddProduct = async () => {
     try {
       const isDuplicate = products.some(
@@ -136,7 +155,12 @@ export default function ProductsManagement() {
           product.name.toLowerCase() === newProduct.name.toLowerCase()
       );
       if (isDuplicate) {
-        alert("این نام محصول قبلاً ثبت شده است. لطفاً نام دیگری انتخاب کنید.");
+        await Swal.fire({
+          icon: "warning",
+          title: "نام تکراری!",
+          text: "این نام محصول قبلاً ثبت شده است. لطفاً نام دیگری انتخاب کنید.",
+          confirmButtonText: "باشه",
+        });
         return;
       }
 
@@ -144,7 +168,7 @@ export default function ProductsManagement() {
       formData.append("name", newProduct.name);
       formData.append("category", newProduct.category);
       formData.append("subcategory", newProduct.subcategory);
-      formData.append("thumbnail", newProduct.image);
+      formData.append("images", newProduct.image); // این خط رو اضافه کن
       formData.append("price", newProduct.price);
       formData.append("quantity", newProduct.quantity);
       formData.append("description", newProduct.description || "");
@@ -154,6 +178,7 @@ export default function ProductsManagement() {
         method: "POST",
         body: formData,
       });
+
       console.log("response.ok:", response.ok);
 
       if (response.ok) {
@@ -183,281 +208,214 @@ export default function ProductsManagement() {
         }
 
         closeModal();
+
+        await Swal.fire({
+          title: "محصول با موفقیت اضافه شد!",
+          icon: "success",
+          draggable: true, // توجه: SweetAlert2 به‌طور رسمی از draggable پشتیبانی نمی‌کنه، این صرفاً برای افکت دلخواه شما بود
+          confirmButtonText: "باشه",
+        });
       } else {
         const errorData = await response.json();
         console.error("Failed to add product:", errorData);
-        alert(errorData.message || "خطایی در افزودن محصول رخ داد.");
+        await Swal.fire({
+          icon: "error",
+          title: "اوه نه...",
+          text: errorData.message || "خطایی در افزودن محصول رخ داد.",
+          confirmButtonText: "باشه",
+        });
       }
     } catch (error) {
       console.error("Error adding product:", error);
-      alert("خطایی در افزودن محصول رخ داد.");
+      await Swal.fire({
+        icon: "error",
+        title: "اوه نه...",
+        text: "خطایی در افزودن محصول رخ داد.",
+        confirmButtonText: "باشه",
+      });
     }
   };
+
+  const handleDeleteProduct = async (productId) => {
+    try {
+      console.log("🔍 Product ID to delete:", productId);
+
+      const result = await Swal.fire({
+        title: "آیا مطمئن هستید؟",
+        text: "شما دیگر نمی‌توانید این عمل را بازگردانید!",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#3085d6",
+        cancelButtonColor: "#d33",
+        confirmButtonText: "بله، حذف شود!",
+        cancelButtonText: "لغو",
+      });
+
+      if (!result.isConfirmed) return;
+
+      const response = await fetch(
+        `http://localhost:8000/api/products/${productId}`,
+        {
+          method: "DELETE",
+        }
+      );
+
+      console.log("📡 DELETE Response Status:", response.status);
+
+      const responseData = await response.json();
+      console.log("📦 DELETE Response Data:", responseData);
+
+      if (response.ok) {
+        setProducts((prevProducts) =>
+          prevProducts.filter((product) => product._id !== productId)
+        );
+        setFilteredProducts((prevFiltered) =>
+          prevFiltered.filter((product) => product._id !== productId)
+        );
+
+        await Swal.fire({
+          title: "حذف شد!",
+          text: "محصول با موفقیت حذف شد.",
+          icon: "success",
+          confirmButtonText: "باشه",
+        });
+      } else {
+        console.error("❌ Failed to delete product:", responseData);
+        Swal.fire({
+          title: "خطا!",
+          text: responseData.message || "خطایی در حذف محصول رخ داد.",
+          icon: "error",
+          confirmButtonText: "باشه",
+        });
+      }
+    } catch (error) {
+      console.error("❗ Error deleting product:", error);
+      Swal.fire({
+        title: "خطا!",
+        text: "خطایی در حذف محصول رخ داد.",
+        icon: "error",
+        confirmButtonText: "باشه",
+      });
+    }
+  };
+
+  const handleEditProduct = async () => {
+    try {
+      if (!editingProduct) return;
+
+      // تبدیل category و subcategory به شناسه
+      const categoryId =
+        typeof newProduct.category === "object"
+          ? newProduct.category._id
+          : newProduct.category;
+
+      const subcategoryId =
+        typeof newProduct.subcategory === "object"
+          ? newProduct.subcategory._id
+          : newProduct.subcategory;
+
+      const formData = new FormData();
+      formData.append("name", newProduct.name);
+      formData.append("category", categoryId); // فقط شناسه ارسال شود
+      formData.append("subcategory", subcategoryId); // فقط شناسه ارسال شود
+      formData.append("images", newProduct.image); // این خط رو اضافه کن
+
+      formData.append("price", newProduct.price);
+      formData.append("quantity", newProduct.quantity);
+      formData.append("description", newProduct.description || "");
+      formData.append("brand", newProduct.brand || "");
+
+      // چاپ مقادیر FormData برای تأیید
+      for (let [key, value] of formData.entries()) {
+        console.log(key, value);
+      }
+
+      const response = await fetch(
+        `http://localhost:8000/api/products/${editingProduct._id}`,
+        {
+          method: "PATCH",
+          body: formData,
+        }
+      );
+
+      if (response.ok) {
+        const updatedData = await response.json();
+        const updatedProduct = updatedData.data.product;
+
+        // بروزرسانی لیست محصولات
+        const updatedProducts = products.map((product) =>
+          product._id === editingProduct._id ? updatedProduct : product
+        );
+        setProducts(updatedProducts);
+        setFilteredProducts(updatedProducts);
+        setEditingProduct(null);
+        closeModal();
+
+        await Swal.fire({
+          icon: "success",
+          title: "محصول با موفقیت ویرایش شد!",
+          confirmButtonText: "باشه",
+        });
+      } else {
+        const errorData = await response.json();
+        await Swal.fire({
+          icon: "error",
+          title: "خطا در ویرایش",
+          text: errorData.message || "مشکلی در ویرایش محصول رخ داده.",
+        });
+      }
+    } catch (error) {
+      console.error("Error editing product:", error);
+      await Swal.fire({
+        icon: "error",
+        title: "خطا",
+        text: "خطایی هنگام ویرایش محصول رخ داد.",
+      });
+    }
+  };
+
   return (
     <div className="p-6 min-h-screen">
       <div className="flex flex-row justify-between">
         <h2 className="text-3xl font-bold text-primaryDark mb-8 text-start">
           مدیریت محصولات
         </h2>
-        <button
-          onClick={openModal}
-          className="text-white bg-primaryDark rounded-md w-24 h-12 shadow-lg border-2 border-gray-300 hover:bg-accent"
-        >
-          افزودن کالا
-        </button>
-      </div>
-
-      {isModalOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded-lg shadow-lg w-[750px]  h-">
-            <h3 className="text-xl font-bold mb-4">افزودن محصول جدید</h3>
-            <form>
-              <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700">
-                  نام محصول
-                </label>
-                <input
-                  type="text"
-                  value={newProduct.name}
-                  onChange={(e) =>
-                    setNewProduct({ ...newProduct, name: e.target.value })
-                  }
-                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primaryDark focus:border-primaryDark sm:text-sm"
-                />
-              </div>
-
-              <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700">
-                  دسته‌بندی
-                </label>
-                <select
-                  value={newProduct.category}
-                  onChange={(e) =>
-                    setNewProduct({ ...newProduct, category: e.target.value })
-                  }
-                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primaryDark focus:border-primaryDark sm:text-sm"
-                >
-                  <option value="">انتخاب کنید...</option>
-                  {categories.map((category) => (
-                    <option key={category._id} value={category._id}>
-                      {category.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700">
-                  زیردسته‌بندی
-                </label>
-                <select
-                  value={newProduct.subcategory}
-                  onChange={(e) =>
-                    setNewProduct({
-                      ...newProduct,
-                      subcategory: e.target.value,
-                    })
-                  }
-                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primaryDark focus:border-primaryDark sm:text-sm"
-                >
-                  <option value="">انتخاب کنید...</option>
-                  {filteredSubcategories.map((subcategory) => (
-                    <option key={subcategory._id} value={subcategory._id}>
-                      {subcategory.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700">
-                  توضیحات
-                </label>
-                <textarea
-                  value={newProduct.description || ""}
-                  onChange={(e) =>
-                    setNewProduct({
-                      ...newProduct,
-                      description: e.target.value,
-                    })
-                  }
-                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primaryDark focus:border-primaryDark sm:text-sm"
-                />
-              </div>
-              <div>
-                <input
-                  type="number"
-                  placeholder="تعداد موجودی"
-                  value={newProduct.quantity}
-                  onChange={(e) =>
-                    setNewProduct({ ...newProduct, quantity: e.target.value })
-                  }
-                  className="input"
-                />
-              </div>
-              <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700">
-                  برند
-                </label>
-                <input
-                  type="text"
-                  value={newProduct.brand || ""}
-                  onChange={(e) =>
-                    setNewProduct({ ...newProduct, brand: e.target.value })
-                  }
-                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primaryDark focus:border-primaryDark sm:text-sm"
-                />
-              </div>
-              <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700">
-                  قیمت
-                </label>
-                <input
-                  type="number"
-                  value={newProduct.price || ""}
-                  onChange={(e) =>
-                    setNewProduct({
-                      ...newProduct,
-                      price: parseFloat(e.target.value),
-                    })
-                  }
-                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primaryDark focus:border-primaryDark sm:text-sm"
-                />
-              </div>
-              <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700">
-                  تصویر
-                </label>
-                <input
-                  type="file"
-                  onChange={(e) =>
-                    setNewProduct({ ...newProduct, image: e.target.files[0] })
-                  }
-                  className="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primaryDark file:text-white hover:file:bg-accent"
-                />
-              </div>
-              <div className="flex justify-end gap-3">
-                <button
-                  type="button"
-                  onClick={closeModal}
-                  className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primaryDark"
-                >
-                  لغو
-                </button>
-                <button
-                  type="button"
-                  onClick={handleAddProduct}
-                  className="px-4 py-2 text-sm font-medium text-white bg-primaryDark border border-transparent rounded-md shadow-sm hover:bg-accent focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primaryDark"
-                >
-                  ذخیره
-                </button>
-              </div>
-            </form>
-          </div>
+        <div className="flex flex-row">
+          <button
+            onClick={openModal}
+            className="text-white bg-primaryDark rounded-md w-24 h-12 shadow-lg border-2 border-gray-300 hover:bg-accent"
+          >
+            افزودن کالا
+          </button>
+          <CustomDropdown onCategorySelect={handleCategorySelect} />
         </div>
+      </div>
+      {isModalOpen && (
+        <AddProductModal
+          isOpen={isModalOpen}
+          onClose={closeModal}
+          onSubmit={editingProduct ? handleEditProduct : handleAddProduct}
+          newProduct={newProduct}
+          setNewProduct={setNewProduct}
+          categories={categories}
+          filteredSubcategories={filteredSubcategories}
+          isEditing={!!editingProduct}
+        />
       )}
 
-      <div className="shadow-lg rounded-lg border border-gray-300">
-        <table className="w-full border-collapse text-sm sm:text-base">
-          <thead>
-            <tr className="bg-primaryDark text-white">
-              <th className="py-4 px-8 text-right font-semibold w-1/8">
-                تصویر
-              </th>
-              <th className="py-4 px-8 text-right font-semibold w-2/4">کالا</th>
-              <th className="py-4 px-6 text-right font-semibold w-2/8">
-                <CustomDropdown onCategorySelect={handleCategorySelect} />
-              </th>
-              <th className="py-4 px-6 text-right font-semibold w-1/8">
-                تغییرات
-              </th>
-            </tr>
-          </thead>
-
-          <tbody>
-            {currentItems.map((product) => (
-              <tr
-                key={product._id}
-                className={`border-b border-gray-300 hover:bg-accent hover:text-white transition`}
-              >
-                <td className="py-4 px-6 border-r border-gray-300">
-                  <img
-                    src={`http://localhost:8000/${product.thumbnail}`}
-                    alt={product.name}
-                    className="w-16 h-16 object-cover rounded-md"
-                  />
-                </td>
-
-                <td className="py-4 px-6 border-r border-gray-300">
-                  {product.name}
-                </td>
-
-                <td className="py-4 px-6 border-r border-gray-300">
-                  {product.category.name}
-                </td>
-
-                <td className="py-4 px-6 border-r border-gray-300 flex items-center justify-center gap-6">
-                  <button
-                    className="text-primaryDark hover:text-blue-500 cursor-pointer"
-                    title="ویرایش"
-                  >
-                    <FaEdit size={18} />
-                  </button>
-
-                  <button
-                    className="text-primaryDark hover:text-red-500 cursor-pointer"
-                    title="حذف"
-                  >
-                    <FaTrashAlt size={18} />
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+      <ProductTable
+        currentItems={currentItems}
+        handleCategorySelect={handleCategorySelect}
+        handleDeleteProduct={handleDeleteProduct} // ارسال تابع حذف
+        openEditModal={openEditModal}
+      />
 
       {/* پیجینگ */}
-      <div className="flex justify-center mt-6 overflow-x-auto">
-        <ul className="flex items-center gap-3">
-          <li
-            className={`px-3 py-1 rounded-md cursor-pointer ${
-              currentPage === 1
-                ? "bg-gray-200 text-gray-400 cursor-not-allowed"
-                : "bg-gray-200 text-primaryDark hover:bg-gray-300"
-            } transition`}
-            onClick={() => handlePageChange(currentPage - 1)}
-            disabled={currentPage === 1}
-          >
-            قبلی
-          </li>
-
-          {getVisiblePages().map((page) => (
-            <li
-              key={page}
-              className={`px-3 py-1 rounded-md cursor-pointer ${
-                currentPage === page
-                  ? "bg-primaryDark text-white"
-                  : "bg-gray-200 text-primaryDark hover:bg-gray-300"
-              } transition`}
-              onClick={() => handlePageChange(page)}
-            >
-              {page}
-            </li>
-          ))}
-
-          <li
-            className={`px-3 py-1 rounded-md cursor-pointer ${
-              currentPage === totalPages
-                ? "bg-gray-200 text-gray-400 cursor-not-allowed"
-                : "bg-gray-200 text-primaryDark hover:bg-gray-300"
-            } transition`}
-            onClick={() => handlePageChange(currentPage + 1)}
-            disabled={currentPage === totalPages}
-          >
-            بعدی
-          </li>
-        </ul>
-      </div>
+      <PaginationProduct
+        currentPage={currentPage}
+        totalPages={totalPages}
+        handlePageChange={handlePageChange}
+      />
     </div>
   );
 }

@@ -6,6 +6,8 @@ import { useState } from "react";
 import Loading from "../loading/loading";
 import ButtonForm from "../shared/button/buttonform";
 import Input from "../shared/input/inputForm";
+import { jwtDecode } from "jwt-decode";
+
 
 export default function Login() {
   const [formData, setFormData] = useState({ username: "", password: "" });
@@ -35,13 +37,22 @@ export default function Login() {
 
     try {
       const result = await loginUser(formData);
+      console.log("login result:", result);
 
       if (!result.success) {
         setError(result.error);
       } else {
-        localStorage.setItem("token", result.accessToken);
-        localStorage.setItem("role", result.role);
+        const token = result.accessToken;
+        const decoded = jwtDecode(token); // 👈 decode مستقیم توکن
 
+        // ذخیره در لوکال‌استوریج
+        localStorage.setItem("token", token);
+        localStorage.setItem("role", result.role);
+        localStorage.setItem("username", formData.username);
+        localStorage.setItem("userId", decoded.id); // 👈 از توکن گرفتیم
+    
+        
+        
         router.push(result.role === "ADMIN" ? "/admin" : "/");
       }
     } catch (err) {
@@ -50,6 +61,9 @@ export default function Login() {
       setIsLoading(false);
     }
   };
+
+
+     
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-background relative">
