@@ -30,17 +30,23 @@ export default function CartPage() {
   const [loading, setLoading] = useState(true);
 
   const handleCartToProduct = () => {
-        router.push(ROUTES.PRODUCT);
-      };
+    router.push(ROUTES.PRODUCT);
+  };
 
-      const handleCartToCheckout = () => {
-        localStorage.setItem("totalAmount", totalPrice.toString());
+  const handleCartToCheckout = () => {
+    localStorage.setItem("totalAmount", totalPrice.toString());
 
-        router.push(ROUTES.CHECKOUT);
-      };
+    // ذخیره محصولات به شکل مورد نیاز برای Checkout
+    const productsToStore = cartItems.map((item) => ({
+      id: item.id,
+      count: item.count,
+    }));
 
+    localStorage.setItem("product", JSON.stringify(productsToStore));
 
-      
+    router.push(ROUTES.CHECKOUT);
+  };
+
   const fetchProducts = async () => {
     try {
       const res = await fetch(API_URL);
@@ -69,7 +75,7 @@ export default function CartPage() {
   }, 0);
 
   if (loading) {
-    return <Loading/>;
+    return <Loading />;
   }
 
   if (mergedCart.length === 0) {
@@ -92,19 +98,19 @@ export default function CartPage() {
             className="border p-4 rounded-lg flex justify-between items-center"
           >
             <Link href={`/main/products/${item._id}`}>
-            <div className="flex items-center gap-4">
-              <img
-                src={getImageUrl(item.images?.[0])}
-                alt={item.name}
-                className="w-20 h-20 object-cover rounded"
-              />
-              <div>
-                <h2 className="text-lg font-semibold">{item.name}</h2>
-                <p>
-                  {item.price?.toLocaleString()} تومان × {item.count}
-                </p>
+              <div className="flex items-center gap-4">
+                <img
+                  src={getImageUrl(item.images?.[0])}
+                  alt={item.name}
+                  className="w-20 h-20 object-cover rounded"
+                />
+                <div>
+                  <h2 className="text-lg font-semibold">{item.name}</h2>
+                  <p>
+                    {item.price?.toLocaleString()} تومان × {item.count}
+                  </p>
+                </div>
               </div>
-            </div>
             </Link>
             <div className="flex gap-3 border border-gray-400 p-1 rounded-xl bg-white">
               <button

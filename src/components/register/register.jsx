@@ -28,18 +28,37 @@ export default function Register() {
     e.preventDefault();
     setIsLoading(true);
     setError(null);
-
+  
     try {
       const data = await registerUser(formData);
+      console.log("ثبت‌نام پاسخ:", data);
+  
+      if (data.status !== "success") {
+        setError("ثبت‌نام ناموفق بود.");
+        return;
+      }
+  
+      // ذخیره اطلاعات
       localStorage.setItem("username", formData.username);
-      console.log("ثبت‌نام موفق:", data);
+      localStorage.setItem("token", data.token.accessToken);
+      localStorage.setItem("refreshToken", data.token.refreshToken);
+  
+      // در صورتی که نقش در پاسخ هست
+      if (data.data?.user?.role) {
+        localStorage.setItem("role", data.data.user.role);
+      }
+  
+      // هدایت به لاگین
       router.push("/auth/login");
     } catch (err) {
+      console.error("خطا:", err);
       setError(err.message || "خطایی در ثبت‌نام رخ داده است.");
     } finally {
       setIsLoading(false);
     }
   };
+  
+  
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-background">
